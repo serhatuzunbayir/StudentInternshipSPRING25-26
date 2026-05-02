@@ -1,0 +1,6 @@
+.vs/
+.idea/
+bin/
+obj/
+Database/student_portal.db
+DesktopAdmin/*.user

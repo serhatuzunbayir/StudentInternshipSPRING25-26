@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StudentWeb</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" asp-controller="Home" asp-action="Index">StudentWeb</a>
+        <nav>
+            <a asp-controller="Account" asp-action="Login">Login</a>
+            <a asp-controller="Profile" asp-action="Index">Profile</a>
+            <a asp-controller="Jobs" asp-action="Index">Jobs</a>
+            <a asp-controller="Applications" asp-action="Index">Applications</a>
+            <a asp-controller="Resume" asp-action="Index">Resume</a>
+            <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        @RenderBody()
+    </main>
+</body>
+</html>
