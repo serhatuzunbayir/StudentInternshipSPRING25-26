@@ -22,8 +22,27 @@ public partial class AdminDashboardForm : Form
 
         InitializeComponent();
         lblWelcome.Text = $"Logged in as: {adminUsername}";
+        ApplyGridTheme(dgvJobs);
+        ApplyGridTheme(dgvApplications);
         _notificationManager.NotificationCreated += NotificationManager_NotificationCreated;
         LoadDashboardData();
+    }
+
+    private static void ApplyGridTheme(DataGridView grid)
+    {
+        grid.EnableHeadersVisualStyles = false;
+        grid.GridColor = Color.FromArgb(228, 234, 244);
+        grid.RowTemplate.Height = 36;
+        grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+        grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(233, 239, 249);
+        grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(43, 53, 79);
+        grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        grid.DefaultCellStyle.BackColor = Color.White;
+        grid.DefaultCellStyle.ForeColor = Color.FromArgb(48, 58, 84);
+        grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(213, 229, 255);
+        grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(27, 38, 66);
+        grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 255);
+        grid.RowHeadersVisible = false;
     }
 
     private void LoadDashboardData()
