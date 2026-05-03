@@ -12,6 +12,8 @@ public partial class AdminDashboardForm : Form
     private readonly ApplicationService _applicationService;
     private readonly ReportService _reportService;
     private readonly NotificationManager _notificationManager;
+    private List<JobListItemViewModel> _jobItems = [];
+    private List<ApplicationListItemViewModel> _applicationItems = [];
 
     public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string adminUsername)
     {
@@ -52,16 +54,23 @@ public partial class AdminDashboardForm : Form
         LoadReports();
     }
 
+    private void AdminDashboardForm_Load(object sender, EventArgs e)
+    {
+        cmbJobTypeFilter.SelectedIndex = 0;
+        cmbJobStatusFilter.SelectedIndex = 0;
+        cmbApplicationStatusFilter.SelectedIndex = 0;
+    }
+
     private void LoadJobs()
     {
-        dgvJobs.AutoGenerateColumns = true;
-        dgvJobs.DataSource = _jobService.GetAllJobs();
+        _jobItems = _jobService.GetAllJobs();
+        ApplyJobFilters();
     }
 
     private void LoadApplications()
     {
-        dgvApplications.AutoGenerateColumns = true;
-        dgvApplications.DataSource = _applicationService.GetAllApplications();
+        _applicationItems = _applicationService.GetAllApplications();
+        ApplyApplicationFilters();
     }
 
     private void LoadReports()
@@ -173,6 +182,97 @@ public partial class AdminDashboardForm : Form
         _applicationService.UpdateStatus(selectedApplication.Id, status);
         LoadApplications();
         LoadReports();
+    }
+
+    private void ApplyJobFilters()
+    {
+        IEnumerable<JobListItemViewModel> query = _jobItems;
+
+        var searchText = txtJobSearch.Text.Trim();
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            query = query.Where(item =>
+                item.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                item.Location.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                item.RequiredSkills.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var selectedJobType = cmbJobTypeFilter.SelectedItem?.ToString();
+        if (!string.IsNullOrWhiteSpace(selectedJobType) && selectedJobType != "All Types")
+        {
+            query = query.Where(item => item.JobType.Equals(selectedJobType, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var selectedActiveStatus = cmbJobStatusFilter.SelectedItem?.ToString();
+        if (!string.IsNullOrWhiteSpace(selectedActiveStatus) && selectedActiveStatus != "All Statuses")
+        {
+            query = query.Where(item => item.ActiveStatus.Equals(selectedActiveStatus, StringComparison.OrdinalIgnoreCase));
+        }
+
+        dgvJobs.AutoGenerateColumns = true;
+        dgvJobs.DataSource = query.ToList();
+    }
+
+    private void ApplyApplicationFilters()
+    {
+        IEnumerable<ApplicationListItemViewModel> query = _applicationItems;
+
+        var searchText = txtApplicationSearch.Text.Trim();
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            query = query.Where(item =>
+                item.StudentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                item.JobTitle.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var selectedStatus = cmbApplicationStatusFilter.SelectedItem?.ToString();
+        if (!string.IsNullOrWhiteSpace(selectedStatus) && selectedStatus != "All Statuses")
+        {
+            query = query.Where(item => item.Status.Equals(selectedStatus, StringComparison.OrdinalIgnoreCase));
+        }
+
+        dgvApplications.AutoGenerateColumns = true;
+        dgvApplications.DataSource = query.ToList();
+    }
+
+    private void txtJobSearch_TextChanged(object sender, EventArgs e)
+    {
+        ApplyJobFilters();
+    }
+
+    private void cmbJobTypeFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ApplyJobFilters();
+    }
+
+    private void cmbJobStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ApplyJobFilters();
+    }
+
+    private void btnClearJobFilters_Click(object sender, EventArgs e)
+    {
+        txtJobSearch.Clear();
+        cmbJobTypeFilter.SelectedIndex = 0;
+        cmbJobStatusFilter.SelectedIndex = 0;
+        ApplyJobFilters();
+    }
+
+    private void txtApplicationSearch_TextChanged(object sender, EventArgs e)
+    {
+        ApplyApplicationFilters();
+    }
+
+    private void cmbApplicationStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ApplyApplicationFilters();
+    }
+
+    private void btnClearApplicationFilters_Click(object sender, EventArgs e)
+    {
+        txtApplicationSearch.Clear();
+        cmbApplicationStatusFilter.SelectedIndex = 0;
+        ApplyApplicationFilters();
     }
 
     private JobListItemViewModel? GetSelectedJobRow()
