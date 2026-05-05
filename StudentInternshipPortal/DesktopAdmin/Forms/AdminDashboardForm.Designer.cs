@@ -42,6 +42,8 @@ partial class AdminDashboardForm
     private Label lblAcceptedValue;
     private Label lblRejectedValue;
     private Label lblPendingValue;
+    private ListBox lstAuditLog;
+    private Label lblAuditLog;
 
     protected override void Dispose(bool disposing)
     {
@@ -638,6 +640,22 @@ partial class AdminDashboardForm
         tabReports.ResumeLayout(false);
         tabReports.PerformLayout();
         ResumeLayout(false);
+        lstAuditLog = new ListBox();
+        lblAuditLog = new Label();
+
+        lblAuditLog.Text = "Admin Activity Log";
+        lblAuditLog.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        lblAuditLog.ForeColor = Color.FromArgb(77, 88, 110);
+        lblAuditLog.Location = new Point(26, 375);
+        lblAuditLog.AutoSize = true;
+
+        lstAuditLog.Location = new Point(26, 400);
+        lstAuditLog.Size = new Size(800, 110);
+        lstAuditLog.Font = new Font("Segoe UI", 9F);
+        lstAuditLog.BorderStyle = BorderStyle.FixedSingle;
+
+        tabReports.Controls.Add(lblAuditLog);
+        tabReports.Controls.Add(lstAuditLog);
     }
 }
 #nullable restore

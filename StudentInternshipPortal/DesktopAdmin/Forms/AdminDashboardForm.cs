@@ -4,6 +4,8 @@ using Shared.Data;
 using Shared.Enums;
 using Shared.Services;
 
+
+
 namespace DesktopAdmin.Forms;
 
 public partial class AdminDashboardForm : Form
@@ -14,19 +16,29 @@ public partial class AdminDashboardForm : Form
     private readonly NotificationManager _notificationManager;
     private List<JobListItemViewModel> _jobItems = [];
     private List<ApplicationListItemViewModel> _applicationItems = [];
+    private readonly AuditLogger _auditLogger = new();
 
-    public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string adminUsername)
+ 
+
+
+public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string adminUsername)
     {
         _jobService = new JobService(databaseHelper);
         _notificationManager = new NotificationManager(databaseHelper);
         _applicationService = new ApplicationService(databaseHelper, _notificationManager);
         _reportService = new ReportService(databaseHelper);
 
+
         InitializeComponent();
+      
         lblWelcome.Text = $"Logged in as: {adminUsername}";
         ApplyGridTheme(dgvJobs);
         ApplyGridTheme(dgvApplications);
         _notificationManager.NotificationCreated += NotificationManager_NotificationCreated;
+        _auditLogger.AdminActionPerformed += action =>
+        {
+            lstAuditLog.Items.Insert(0, $"{DateTime.Now:HH:mm:ss} - {action}");
+        };
         LoadDashboardData();
     }
 
@@ -46,6 +58,8 @@ public partial class AdminDashboardForm : Form
         grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 255);
         grid.RowHeadersVisible = false;
     }
+
+
 
     private void LoadDashboardData()
     {
@@ -96,6 +110,7 @@ public partial class AdminDashboardForm : Form
         LoadJobs();
         LoadReports();
         MessageBox.Show("Job created successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        _auditLogger.Log($"Added job: {form.JobResult.Title}");
     }
 
     private void btnEditJob_Click(object sender, EventArgs e)
@@ -124,6 +139,7 @@ public partial class AdminDashboardForm : Form
         LoadJobs();
         LoadReports();
         MessageBox.Show("Job updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        _auditLogger.Log($"Edited job: {form.JobResult.Title}");
     }
 
     private void btnDeleteJob_Click(object sender, EventArgs e)
@@ -145,6 +161,7 @@ public partial class AdminDashboardForm : Form
         {
             return;
         }
+        _auditLogger.Log($"Deleted job: {selectedItem.Title}");
 
         _jobService.DeleteJob(selectedItem.Id);
         LoadDashboardData();
@@ -176,6 +193,7 @@ public partial class AdminDashboardForm : Form
         if (selectedApplication is null)
         {
             MessageBox.Show("Select an application first.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _auditLogger.Log($"Application {selectedApplication.Id} marked as {status}");
             return;
         }
 
