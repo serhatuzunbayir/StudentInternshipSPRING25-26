@@ -3,7 +3,135 @@
     ViewData["Title"] = "Profile";
 }
 
-<section class="placeholder-card">
-    <h1>Profile</h1>
-    <p>Profile editor scaffold is ready for skills, education, experience, phone and about me.</p>
-</section>
+<style>
+.profile-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.profile-card {
+    width: 850px;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.profile-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: none;
+}
+
+.full-row {
+    grid-column: span 2;
+}
+
+button {
+    width: 200px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+.button-center {
+    display: flex;
+    justify-content: center;
+}
+</style>
+
+<div class="profile-wrapper">
+    <div class="profile-card">
+
+        <div class="profile-title">Your Profile</div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div style="color:green;text-align:center;margin-bottom:10px;">
+                @TempData["Success"]
+            </div>
+        }
+
+        <form asp-action="Index" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-grid">
+
+                <!-- LEFT SIDE -->
+                <div class="field">
+                    <label>Full Name</label>
+                    <input asp-for="FullName" />
+                </div>
+
+                <div class="field">
+                    <label>Education</label>
+                    <textarea asp-for="Education"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Phone</label>
+                    <input asp-for="Phone" />
+                </div>
+
+                <!-- RIGHT SIDE -->
+                <div class="field">
+                    <label>Skills</label>
+                    <textarea asp-for="Skills"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Experience</label>
+                    <textarea asp-for="Experience"></textarea>
+                </div>
+
+                <div class="field">
+                    <label>About Me</label>
+                    <textarea asp-for="AboutMe"></textarea>
+                </div>
+
+                <!-- FULL WIDTH BUTTON -->
+                <div class="full-row button-center">
+                    <button type="submit">Save Profile</button>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</div>

@@ -25,12 +25,12 @@ public static class DatabaseInitializer
             CREATE TABLE IF NOT EXISTS StudentProfiles (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 UserId INTEGER NOT NULL UNIQUE,
-                FullName TEXT NOT NULL,
-                Skills TEXT NOT NULL,
-                Education TEXT NOT NULL,
-                Experience TEXT NOT NULL,
-                Phone TEXT NOT NULL,
-                AboutMe TEXT NOT NULL,
+                FullName TEXT  NOT NULL,
+                Skills TEXT,
+                Education TEXT,
+                Experience TEXT,
+                Phone TEXT,
+                AboutMe TEXT,
                 FOREIGN KEY(UserId) REFERENCES Users(Id)
             );
 
