@@ -1,8 +1,66 @@
+@model StudentWeb.Models.NotificationListViewModel
 @{
     ViewData["Title"] = "Notifications";
 }
 
-<section class="placeholder-card">
-    <h1>Notifications</h1>
-    <p>Placeholder page for student notifications backed by the shared notifications table.</p>
+<section class="hero jobs-hero">
+    <span class="eyebrow">Notifications</span>
+    <h1>Stay updated on your applications</h1>
+    <p>Review the latest status changes and system messages sent to your account.</p>
+</section>
+
+<section class="jobs-results">
+    <div class="jobs-results-header notifications-header">
+        <div>
+            <h2>Inbox</h2>
+            <span>@Model.UnreadCount unread of @Model.Notifications.Count notification(s)</span>
+        </div>
+
+        @if (Model.UnreadCount > 0)
+        {
+            <form asp-action="MarkAllAsRead" method="post" class="notifications-toolbar-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="jobs-secondary-btn">Mark all as read</button>
+            </form>
+        }
+    </div>
+
+    @if (Model.Notifications.Count == 0)
+    {
+        <div class="jobs-empty-state">
+            <h3>No notifications yet</h3>
+            <p>Application updates and platform messages will appear here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="notifications-list">
+            @foreach (var notification in Model.Notifications)
+            {
+                var cardClass = notification.IsRead ? "notification-card-read" : "notification-card-unread";
+                var badgeClass = notification.IsRead ? "notification-state-read" : "notification-state-new";
+
+                <article class="notification-card @cardClass">
+                    <div class="notification-card-top">
+                        <div>
+                            <h3>@notification.Title</h3>
+                            <p class="notification-time">@notification.CreatedAt</p>
+                        </div>
+                        <span class="notification-state @badgeClass">@(notification.IsRead ? "Read" : "New")</span>
+                    </div>
+
+                    <p class="notification-message">@notification.Message</p>
+
+                    @if (!notification.IsRead)
+                    {
+                        <form asp-action="MarkAsRead" method="post" class="notification-action-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="notificationId" value="@notification.Id" />
+                            <button type="submit" class="jobs-secondary-btn">Mark as read</button>
+                        </form>
+                    }
+                </article>
+            }
+        </div>
+    }
 </section>

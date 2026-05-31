@@ -16,7 +16,7 @@ public class NotificationManager
 
     public event NotificationCreatedEventHandler? NotificationCreated;
 
-    public Notification CreateNotification(int userId, string title, string message)
+    public Notification CreateNotification(int userId, string title, string message, DateTime? createdAt = null)
     {
         var notification = new Notification
         {
@@ -24,7 +24,7 @@ public class NotificationManager
             Title = title,
             Message = message,
             IsRead = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = createdAt ?? DateTime.UtcNow
         };
 
         using var connection = _databaseHelper.CreateConnection();
@@ -75,10 +75,43 @@ public class NotificationManager
                 Title = reader.GetString(2),
                 Message = reader.GetString(3),
                 IsRead = reader.GetInt32(4) == 1,
-                CreatedAt = DateTime.Parse(reader.GetString(5))
+                CreatedAt = DateTime.Parse(reader.GetString(5), null, System.Globalization.DateTimeStyles.RoundtripKind)
             });
         }
 
         return items;
+    }
+
+    public void MarkAsRead(int userId, int notificationId)
+    {
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE Notifications
+            SET IsRead = 1
+            WHERE Id = $notificationId AND UserId = $userId;
+            """;
+        command.Parameters.AddWithValue("$notificationId", notificationId);
+        command.Parameters.AddWithValue("$userId", userId);
+        command.ExecuteNonQuery();
+    }
+
+    public void MarkAllAsRead(int userId)
+    {
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE Notifications
+            SET IsRead = 1
+            WHERE UserId = $userId AND IsRead = 0;
+            """;
+        command.Parameters.AddWithValue("$userId", userId);
+        command.ExecuteNonQuery();
     }
 }

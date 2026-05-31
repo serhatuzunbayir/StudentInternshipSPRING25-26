@@ -57,6 +57,8 @@ public class ApplicationService
 
     public void UpdateStatus(int applicationId, ApplicationStatus newStatus)
     {
+        var statusChangedAt = DateTime.UtcNow;
+
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
 
@@ -94,13 +96,39 @@ public class ApplicationService
             WHERE Id = $applicationId;
             """;
         updateCommand.Parameters.AddWithValue("$status", (int)newStatus);
-        updateCommand.Parameters.AddWithValue("$updatedAt", DateTime.UtcNow.ToString("O"));
+        updateCommand.Parameters.AddWithValue("$updatedAt", statusChangedAt.ToString("O"));
         updateCommand.Parameters.AddWithValue("$applicationId", applicationId);
         updateCommand.ExecuteNonQuery();
 
+        var notificationTitle = GetNotificationTitle(newStatus);
+        var notificationMessage = GetNotificationMessage(jobTitle, newStatus);
+
         _notificationManager.CreateNotification(
             studentUserId,
-            "Application Status Updated",
-            $"Your application for '{jobTitle}' is now {newStatus}.");
+            notificationTitle,
+            notificationMessage,
+            statusChangedAt);
+    }
+
+    private static string GetNotificationTitle(ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.Accepted => "Application Accepted",
+            ApplicationStatus.Rejected => "Application Rejected",
+            ApplicationStatus.Pending => "Application Back In Review",
+            _ => "Application Status Updated"
+        };
+    }
+
+    private static string GetNotificationMessage(string jobTitle, ApplicationStatus status)
+    {
+        return status switch
+        {
+            ApplicationStatus.Accepted => $"Good news. Your application for '{jobTitle}' has been accepted.",
+            ApplicationStatus.Rejected => $"Your application for '{jobTitle}' has been rejected.",
+            ApplicationStatus.Pending => $"Your application for '{jobTitle}' is currently under review again.",
+            _ => $"Your application for '{jobTitle}' has been updated."
+        };
     }
 }

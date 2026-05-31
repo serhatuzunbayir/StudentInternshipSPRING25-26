@@ -340,6 +340,9 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
 
     private void dgvApplications_CellContentClick(object sender, DataGridViewCellEventArgs e)
     {
-        throw new System.NotImplementedException();
+        if (e.RowIndex >= 0)
+        {
+            dgvApplications.Rows[e.RowIndex].Selected = true;
+        }
     }
 }
