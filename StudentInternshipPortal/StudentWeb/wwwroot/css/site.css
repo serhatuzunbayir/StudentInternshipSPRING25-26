@@ -40,6 +40,48 @@ body {
   text-decoration: none;
 }
 
+.nav-welcome {
+  margin-right: 0.5rem;
+  color: var(--muted);
+}
+
+.nav-notification-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.nav-notification-badge {
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.28);
+}
+
+.nav-logout-form {
+  display: inline;
+  margin-left: 0.25rem;
+}
+
+.nav-logout-button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
 .brand {
   font-weight: 700;
 }

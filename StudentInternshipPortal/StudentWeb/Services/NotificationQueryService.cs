@@ -32,6 +32,11 @@ public class NotificationQueryService
         };
     }
 
+    public int GetUnreadCount(int userId)
+    {
+        return _notificationManager.GetNotificationsForUser(userId).Count(notification => !notification.IsRead);
+    }
+
     public void MarkAsRead(int userId, int notificationId)
     {
         _notificationManager.MarkAsRead(userId, notificationId);

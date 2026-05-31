@@ -1,43 +1,56 @@
+@using System.Security.Claims
+@using StudentWeb.Services
+@inject NotificationQueryService NotificationQueryService
+
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>@ViewData["Title"] - StudentWeb</title>
-		<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	</head>
-	<body>
-		<header class="site-header">
-			<a class="brand" asp-controller="Home" asp-action="Index">StudentWeb</a>
-			<nav>
-				@if (User.Identity?.IsAuthenticated == true)
-				{
-				<span class="nav-welcome" style="margin-right: 15px; color: var(--text-muted, #666);">
-					Hello, <strong>@User.Identity.Name</strong>!
-				</span>
-				<a asp-controller="Profile" asp-action="Index">Profile</a>
-				<a asp-controller="Jobs" asp-action="Index">Jobs</a>
-				<a asp-controller="Applications" asp-action="Index">Applications</a>
-				<a asp-controller="Resume" asp-action="Index">Resume</a>
-				<a asp-controller="Notifications" asp-action="Index">Notifications</a>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - StudentWeb</title>
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="brand" asp-controller="Home" asp-action="Index">StudentWeb</a>
+            <nav>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                    var unreadNotificationCount = NotificationQueryService.GetUnreadCount(userId);
 
-				<form asp-controller="Account" asp-action="Logout" method="post" style="display: inline; margin-left: 10px;">
-					<button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; padding: 0; font: inherit;">
-						Logout
-					</button>
-				</form>
-				}
-				else
-				{
-				<a asp-controller="Account" asp-action="Login">Login</a>
-				}
-			</nav>
-		</header>
+                    <span class="nav-welcome">
+                        Hello, <strong>@User.Identity.Name</strong>!
+                    </span>
+                    <a asp-controller="Profile" asp-action="Index">Profile</a>
+                    <a asp-controller="Jobs" asp-action="Index">Jobs</a>
+                    <a asp-controller="Applications" asp-action="Index">Applications</a>
+                    <a asp-controller="Resume" asp-action="Index">Resume</a>
+                    <a asp-controller="Notifications" asp-action="Index" class="nav-notification-link">
+                        <span>Notifications</span>
+                        @if (unreadNotificationCount > 0)
+                        {
+                            <span class="nav-notification-badge">@unreadNotificationCount</span>
+                        }
+                    </a>
 
-		<main class="page-shell">
-			@RenderBody()
-		</main>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="nav-logout-form">
+                        <button type="submit" class="nav-logout-button">
+                            Logout
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login">Login</a>
+                }
+            </nav>
+        </header>
 
-		@await RenderSectionAsync("Scripts", required: false)
-	</body>
+        <main class="page-shell">
+            @RenderBody()
+        </main>
+
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
 </html>
