@@ -1,31 +1,107 @@
-# Student Internship and Job Portal
+# StudentInternshipSPRING25-26
+The system has two parts:
 
-This solution is split into three projects:
+- `DesktopAdmin`: admin panel for managing jobs and applications
+- `StudentWeb`: web side for students
 
-- `DesktopAdmin`: WinForms admin application
-- `StudentWeb`: ASP.NET Core MVC student application scaffold
-- `Shared`: common models, SQLite helper, notification manager, matching logic
+## How It Works
 
-## Current Status
+Students can register and log in to the system, create their profiles, add skills and experience information, and explore available internship or job opportunities.
 
-- The old single-project structure was removed.
-- `DesktopAdmin` is implemented with designer-friendly forms.
-- `StudentWeb` is prepared as a compile-ready scaffold and can be filled later on top of the shared layer.
-- Both sides are designed to use the same SQLite database file.
+Administrators use the desktop application to manage job postings, review applications, update application statuses, and monitor overall system activity through the dashboard.
 
-## Default Admin
+## Technologies Used
+
+- C#
+- .NET 10
+- WinForms for the admin panel
+- ASP.NET Core MVC for the student web app
+- SQLite for the database
+- LINQ for filtering in the admin dashboard
+- Cookie Authentication for student login
+
+## Packages / Dependencies
+
+- `Microsoft.Data.Sqlite` `10.0.7`
+- .NET SDK version in `global.json`: `10.0.0`
+
+There is no Entity Framework in this project. Database operations are written manually with SQLite commands.
+
+## Project Structure
+
+- `DesktopAdmin/`: WinForms admin application
+- `StudentWeb/`: ASP.NET Core MVC student application
+- `Shared/`: shared models, enums, database helper, matching logic, notification logic
+- `Database/`: shared SQLite database file
+
+## Database
+
+The project uses a shared SQLite database located at:
+
+- `Database/student_portal.db`
+
+The database path is resolved using a relative path, making the project portable across different machines.
+
+Important note:
+
+- The database tables and default admin user are created when `DesktopAdmin` starts.
+- Because of that, it is best to run `DesktopAdmin` first at least one time.
+
+## Default Admin Account
 
 - Username: `admin`
 - Password: `admin123`
 
-## Database
+## Features
 
-The SQLite file is created automatically at:
+### User Registration and Authentication
+Students can register and log in through the web application. Administrators can access the system through the desktop application.
 
-- `Database/student_portal.db`
+### Student Profile Management
+Students can manage personal information, skills, education, and experience details.
 
-## Notes
+### Resume Builder
+Provides resume creation and management functionality for student profiles.
 
-- WinForms UI layout is kept in `.Designer.cs` files.
-- Form event handling and business logic are kept in `.cs` files.
-- Shared database and notification behavior live in the `Shared` project.
+### Job Posting Management
+Administrators can create, update, delete, and manage job postings.
+
+### Job Search and Filtering
+Job and application data can be filtered using LINQ-based operations.
+
+### Job Matching System
+The system calculates compatibility between student skills and job requirements.
+
+### Application Submission and Tracking
+Students can apply for positions and track application status.
+
+### Notification System
+Notifications are generated using delegates and events when important actions occur.
+
+### Admin Dashboard and Reporting
+Administrators can view application statistics, reports, and system summaries.
+
+## How to Run
+
+1. Install .NET 10 SDK.
+2. Open the solution:
+
+```powershell
+dotnet build .\StudentInternshipPortal.sln
+```
+
+3. Run the admin project first to create the database and seed the default admin:
+
+```powershell
+dotnet run --project .\DesktopAdmin\DesktopAdmin.csproj
+```
+
+4. Run the student web project:
+
+```powershell
+dotnet run --project .\StudentWeb\StudentWeb.csproj
+```
+
+5. Open the local URL shown in the terminal for `StudentWeb`.
+
+
