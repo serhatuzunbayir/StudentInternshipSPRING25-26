@@ -37,6 +37,11 @@ public class NotificationQueryService
         return _notificationManager.GetNotificationsForUser(userId).Count(notification => !notification.IsRead);
     }
 
+    public int GetNotificationCount(int userId)
+    {
+        return _notificationManager.GetNotificationsForUser(userId).Count;
+    }
+
     public void MarkAsRead(int userId, int notificationId)
     {
         _notificationManager.MarkAsRead(userId, notificationId);

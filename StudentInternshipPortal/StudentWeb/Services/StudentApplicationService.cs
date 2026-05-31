@@ -58,6 +58,24 @@ public class StudentApplicationService
         return items;
     }
 
+    public int GetApplicationCountForStudent(int userId)
+    {
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT COUNT(1)
+            FROM Applications a
+            INNER JOIN StudentProfiles sp ON sp.Id = a.StudentProfileId
+            WHERE sp.UserId = $userId;
+            """;
+        command.Parameters.AddWithValue("$userId", userId);
+
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
     public SubmitApplicationResult SubmitApplication(int userId, int jobId)
     {
         using var connection = _databaseHelper.CreateConnection();

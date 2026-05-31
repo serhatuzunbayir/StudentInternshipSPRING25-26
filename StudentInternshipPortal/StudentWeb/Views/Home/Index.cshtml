@@ -1,19 +1,65 @@
+@model StudentWeb.Models.HomeViewModel
 @{
     ViewData["Title"] = "Student Internship and Job Portal";
 }
 
-<section class="hero">
-    <div class="hero-copy">
-        <span class="eyebrow">StudentWeb scaffold</span>
-        <h1>Student side MVC structure is ready for the next phase.</h1>
-        <p>
-            Shared models, database access and service placeholders are in place. Real student flows
-            can now be added without reshaping the solution.
-        </p>
-        <div class="hero-links">
-            <a asp-controller="Account" asp-action="Login">Login</a>
-            <a asp-controller="Jobs" asp-action="Index">Browse Jobs</a>
-            <a asp-controller="Notifications" asp-action="Index">Notifications</a>
+<section class="home-hero">
+    <div class="home-hero-shell">
+        <div class="home-hero-copy">
+            <h1>Find the right internship or job, track every application, and stay on top of decisions.</h1>
+            <p>
+                One student workspace for profile matching, job discovery, application status updates,
+                and notifications without email chaos.
+            </p>
+            <div class="home-hero-actions">
+                @if (Model.IsAuthenticated)
+                {
+                    <a asp-controller="Jobs" asp-action="Index" class="jobs-primary-btn">Explore opportunities</a>
+                    <a asp-controller="Applications" asp-action="Index" class="jobs-secondary-btn">View applications</a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="jobs-primary-btn">Sign in</a>
+                    <a asp-controller="Account" asp-action="Register" class="jobs-secondary-btn">Create account</a>
+                }
+            </div>
+        </div>
+
+        <div class="home-hero-visual" aria-hidden="true">
+            <div class="home-hero-orbit home-hero-orbit-left"></div>
+            <div class="home-hero-orbit home-hero-orbit-right"></div>
+
+            <div class="home-signal-board">
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Profile match</span>
+                    <span class="home-signal-value">@Model.ProfileMatchPercentage%</span>
+                </div>
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Open roles</span>
+                    <span class="home-signal-value">@Model.OpenRolesCount</span>
+                </div>
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Total applications</span>
+                    <span class="home-signal-value">@Model.TotalApplicationsCount</span>
+                </div>
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Total notifications</span>
+                    <span class="home-signal-value">@Model.TotalNotificationsCount</span>
+                </div>
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Unread notifications</span>
+                    <span class="home-signal-value">@Model.UnreadNotificationsCount</span>
+                </div>
+                <div class="home-signal-line">
+                    <span class="home-signal-label">Pending review</span>
+                    <span class="home-signal-value">@Model.PendingReviewCount</span>
+                </div>
+                <div class="home-signal-flow">
+                    <span class="home-flow-chip">Jobs</span>
+                    <span class="home-flow-chip">Applications</span>
+                    <span class="home-flow-chip home-flow-chip-live">Inbox</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>

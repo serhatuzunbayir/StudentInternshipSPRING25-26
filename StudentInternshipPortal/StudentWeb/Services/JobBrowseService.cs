@@ -61,6 +61,24 @@ public class JobBrowseService
             .ToList();
     }
 
+    public HomeViewModel GetHomeViewModel(int userId)
+    {
+        var studentSkills = GetStudentSkills(userId);
+        var existingApplications = GetExistingApplications(userId);
+        var jobs = GetActiveJobs();
+        var highestMatchPercentage = jobs.Count == 0
+            ? 0
+            : jobs.Max(job => _matchingService.CalculateSkillMatchPercentage(studentSkills, job.RequiredSkills));
+
+        return new HomeViewModel
+        {
+            IsAuthenticated = true,
+            ProfileMatchPercentage = highestMatchPercentage,
+            OpenRolesCount = jobs.Count,
+            PendingReviewCount = existingApplications.Count(application => application.Value == ApplicationStatus.Pending)
+        };
+    }
+
     private Dictionary<int, ApplicationStatus> GetExistingApplications(int userId)
     {
         var applications = new Dictionary<int, ApplicationStatus>();
