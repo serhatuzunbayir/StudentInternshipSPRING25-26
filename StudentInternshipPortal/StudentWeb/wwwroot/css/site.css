@@ -231,6 +231,21 @@ body {
   font-weight: 700;
 }
 
+.job-status-badge-accepted {
+  background: #d9f3ef;
+  color: #0f766e;
+}
+
+.job-status-badge-pending {
+  background: #fff3db;
+  color: #b45309;
+}
+
+.job-status-badge-rejected {
+  background: #ffe2e2;
+  color: #b91c1c;
+}
+
 .job-description {
   line-height: 1.6;
 }
