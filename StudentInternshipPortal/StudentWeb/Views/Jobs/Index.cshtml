@@ -46,6 +46,12 @@
         <span>@Model.Results.Count job(s) found</span>
     </div>
 
+    @if (TempData["ApplicationMessage"] is string message)
+    {
+        var messageType = TempData["ApplicationMessageType"] as string ?? "success";
+        <div class="jobs-feedback jobs-feedback-@messageType">@message</div>
+    }
+
     @if (Model.Results.Count == 0)
     {
         <div class="jobs-empty-state">
@@ -72,6 +78,22 @@
                     <div class="job-skills-block">
                         <span class="job-skills-label">Required Skills</span>
                         <p>@job.RequiredSkills</p>
+                    </div>
+
+                    <div class="job-card-actions">
+                        @if (job.HasApplied)
+                        {
+                            <span class="job-application-state">Application: @job.ApplicationStatus</span>
+                            <a asp-controller="Applications" asp-action="Index" class="jobs-secondary-btn">View applications</a>
+                        }
+                        else
+                        {
+                            <form asp-controller="Applications" asp-action="Submit" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="jobId" value="@job.Id" />
+                                <button type="submit" class="jobs-primary-btn">Apply now</button>
+                            </form>
+                        }
                     </div>
                 </article>
             }

@@ -1,8 +1,50 @@
+@model StudentWeb.Models.ApplicationListViewModel
 @{
     ViewData["Title"] = "Applications";
 }
 
-<section class="placeholder-card">
-    <h1>Applications</h1>
-    <p>Placeholder page for student application tracking.</p>
+<section class="hero jobs-hero">
+    <span class="eyebrow">My Applications</span>
+    <h1>Track your submitted applications</h1>
+    <p>Review the current status of your job applications and revisit relevant job requirements.</p>
+</section>
+
+<section class="jobs-results">
+    <div class="jobs-results-header">
+        <h2>Applications</h2>
+        <span>@Model.Applications.Count application(s)</span>
+    </div>
+
+    @if (Model.Applications.Count == 0)
+    {
+        <div class="jobs-empty-state">
+            <h3>No applications yet</h3>
+            <p>Browse active jobs and submit your first application.</p>
+            <a asp-controller="Jobs" asp-action="Index" class="jobs-primary-btn">Browse jobs</a>
+        </div>
+    }
+    else
+    {
+        <div class="jobs-grid">
+            @foreach (var application in Model.Applications)
+            {
+                <article class="job-card">
+                    <div class="job-card-top">
+                        <div>
+                            <h3>@application.JobTitle</h3>
+                            <p class="job-meta">@application.Location • @application.JobType</p>
+                        </div>
+                        <div class="job-match-badge">@application.Status</div>
+                    </div>
+
+                    <p class="job-description">Applied on @application.AppliedAt</p>
+
+                    <div class="job-skills-block">
+                        <span class="job-skills-label">Required Skills</span>
+                        <p>@application.RequiredSkills</p>
+                    </div>
+                </article>
+            }
+        </div>
+    }
 </section>

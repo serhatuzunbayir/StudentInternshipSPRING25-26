@@ -20,6 +20,7 @@ public class JobBrowseService
     public List<JobSearchResultViewModel> SearchJobs(int userId, JobSearchViewModel filters)
     {
         var studentSkills = GetStudentSkills(userId);
+        var existingApplications = GetExistingApplications(userId);
         var jobs = GetActiveJobs();
         IEnumerable<JobSearchResultViewModel> query = jobs.Select(job => new JobSearchResultViewModel
         {
@@ -29,7 +30,11 @@ public class JobBrowseService
             RequiredSkills = job.RequiredSkills,
             Location = job.Location,
             JobType = job.JobType.ToString(),
-            MatchPercentage = _matchingService.CalculateSkillMatchPercentage(studentSkills, job.RequiredSkills)
+            MatchPercentage = _matchingService.CalculateSkillMatchPercentage(studentSkills, job.RequiredSkills),
+            HasApplied = existingApplications.TryGetValue(job.Id, out var status),
+            ApplicationStatus = existingApplications.TryGetValue(job.Id, out var applicationStatus)
+                ? applicationStatus.ToString()
+                : string.Empty
         });
 
         if (!string.IsNullOrWhiteSpace(filters.Skill))
@@ -54,6 +59,32 @@ public class JobBrowseService
             .OrderByDescending(job => job.MatchPercentage)
             .ThenBy(job => job.Title)
             .ToList();
+    }
+
+    private Dictionary<int, ApplicationStatus> GetExistingApplications(int userId)
+    {
+        var applications = new Dictionary<int, ApplicationStatus>();
+
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT a.JobId, a.Status
+            FROM Applications a
+            INNER JOIN StudentProfiles sp ON sp.Id = a.StudentProfileId
+            WHERE sp.UserId = $userId;
+            """;
+        command.Parameters.AddWithValue("$userId", userId);
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            applications[reader.GetInt32(0)] = (ApplicationStatus)reader.GetInt32(1);
+        }
+
+        return applications;
     }
 
     private string GetStudentSkills(int userId)

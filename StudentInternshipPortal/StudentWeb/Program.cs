@@ -24,6 +24,7 @@ builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<JobBrowseService>();
 builder.Services.AddScoped<ResumeBuilderService>();
 builder.Services.AddScoped<NotificationQueryService>();
+builder.Services.AddScoped<StudentApplicationService>();
 
 var app = builder.Build();
 

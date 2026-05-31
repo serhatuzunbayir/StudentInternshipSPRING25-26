@@ -87,7 +87,8 @@ body {
 
 .jobs-search-card,
 .jobs-empty-state,
-.job-card {
+.job-card,
+.jobs-feedback {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -95,8 +96,25 @@ body {
 }
 
 .jobs-search-card,
-.jobs-empty-state {
+.jobs-empty-state,
+.jobs-feedback {
   padding: 1.5rem;
+}
+
+.jobs-feedback {
+  margin-bottom: 1rem;
+}
+
+.jobs-feedback-success {
+  border-color: rgba(15, 118, 110, 0.25);
+  background: #edf9f7;
+  color: #0f5c55;
+}
+
+.jobs-feedback-error {
+  border-color: rgba(185, 28, 28, 0.2);
+  background: #fff1f2;
+  color: #991b1b;
 }
 
 .jobs-filter-form {
@@ -215,6 +233,23 @@ body {
 
 .job-description {
   line-height: 1.6;
+}
+
+.job-card-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.job-card-actions form {
+  margin: 0;
+}
+
+.job-application-state {
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .job-skills-label {
