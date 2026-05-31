@@ -44,7 +44,7 @@ public class ApplicationService
             items.Add(new ApplicationListItemViewModel
             {
                 Id = reader.GetInt32(0),
-                StudentUserId = reader.GetInt32(1),
+                StudentId = reader.GetInt32(1),
                 StudentName = reader.GetString(2),
                 JobTitle = reader.GetString(3),
                 Status = ((ApplicationStatus)reader.GetInt32(4)).ToString(),

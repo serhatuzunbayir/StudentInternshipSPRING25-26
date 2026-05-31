@@ -294,16 +294,17 @@ partial class AdminDashboardForm
         // dgvJobs
         // 
         dgvJobs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
+        dgvJobs.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
         dgvJobs.BackgroundColor = System.Drawing.Color.White;
         dgvJobs.BorderStyle = System.Windows.Forms.BorderStyle.None;
         dgvJobs.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvJobs.Location = new System.Drawing.Point(18, 117);
+        dgvJobs.Location = new System.Drawing.Point(18, 103);
         dgvJobs.MultiSelect = false;
         dgvJobs.Name = "dgvJobs";
         dgvJobs.ReadOnly = true;
         dgvJobs.RowHeadersWidth = 51;
         dgvJobs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-        dgvJobs.Size = new System.Drawing.Size(908, 398);
+        dgvJobs.Size = new System.Drawing.Size(908, 412);
         dgvJobs.TabIndex = 0;
         // 
         // tabApplications
@@ -454,17 +455,19 @@ partial class AdminDashboardForm
         // dgvApplications
         // 
         dgvApplications.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
+        dgvApplications.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
         dgvApplications.BackgroundColor = System.Drawing.Color.White;
         dgvApplications.BorderStyle = System.Windows.Forms.BorderStyle.None;
         dgvApplications.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvApplications.Location = new System.Drawing.Point(12, 98);
+        dgvApplications.Location = new System.Drawing.Point(12, 85);
         dgvApplications.MultiSelect = false;
         dgvApplications.Name = "dgvApplications";
         dgvApplications.ReadOnly = true;
         dgvApplications.RowHeadersWidth = 51;
         dgvApplications.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-        dgvApplications.Size = new System.Drawing.Size(907, 417);
+        dgvApplications.Size = new System.Drawing.Size(920, 441);
         dgvApplications.TabIndex = 0;
+        dgvApplications.CellContentClick += dgvApplications_CellContentClick;
         // 
         // tabReports
         // 

@@ -60,6 +60,28 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         grid.RowHeadersVisible = false;
     }
 
+    private static void ConfigureIdColumns(DataGridView grid)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            if (column.Name.Contains("Id", StringComparison.OrdinalIgnoreCase))
+            {
+                column.FillWeight = 48;
+                column.MinimumWidth = 58;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                continue;
+            }
+
+            if (column.Name.Contains("Name", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(column.Name, "Title", StringComparison.OrdinalIgnoreCase))
+            {
+                column.FillWeight = 82;
+                column.MinimumWidth = 90;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+        }
+    }
+
 
 
     private void LoadDashboardData()
@@ -229,6 +251,7 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
 
         dgvJobs.AutoGenerateColumns = true;
         dgvJobs.DataSource = query.ToList();
+        ConfigureIdColumns(dgvJobs);
     }
 
     private void ApplyApplicationFilters()
@@ -251,6 +274,7 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
 
         dgvApplications.AutoGenerateColumns = true;
         dgvApplications.DataSource = query.ToList();
+        ConfigureIdColumns(dgvApplications);
     }
 
     private void txtJobSearch_TextChanged(object sender, EventArgs e)
@@ -312,5 +336,10 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
     {
         LoadApplications();
         LoadReports();
+    }
+
+    private void dgvApplications_CellContentClick(object sender, DataGridViewCellEventArgs e)
+    {
+        throw new System.NotImplementedException();
     }
 }
