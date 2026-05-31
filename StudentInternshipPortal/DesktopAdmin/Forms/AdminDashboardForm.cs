@@ -3,6 +3,7 @@ using DesktopAdmin.ViewModels;
 using Shared.Data;
 using Shared.Enums;
 using Shared.Services;
+using Shared.Utilities;
 
 
 
@@ -210,9 +211,9 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             query = query.Where(item =>
-                item.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                item.Location.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                item.RequiredSkills.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+                SearchTextHelper.Contains(item.Title, searchText) ||
+                SearchTextHelper.Contains(item.Location, searchText) ||
+                SearchTextHelper.Contains(item.RequiredSkills, searchText));
         }
 
         var selectedJobType = cmbJobTypeFilter.SelectedItem?.ToString();
@@ -239,8 +240,8 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             query = query.Where(item =>
-                item.StudentName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                item.JobTitle.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+                SearchTextHelper.Contains(item.StudentName, searchText) ||
+                SearchTextHelper.Contains(item.JobTitle, searchText));
         }
 
         var selectedStatus = cmbApplicationStatusFilter.SelectedItem?.ToString();

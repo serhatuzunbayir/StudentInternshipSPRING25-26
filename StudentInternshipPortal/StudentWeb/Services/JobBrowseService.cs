@@ -2,6 +2,7 @@ using Shared.Data;
 using Shared.Enums;
 using Shared.Models;
 using Shared.Services;
+using Shared.Utilities;
 using StudentWeb.Models;
 
 namespace StudentWeb.Services;
@@ -34,13 +35,13 @@ public class JobBrowseService
         if (!string.IsNullOrWhiteSpace(filters.Skill))
         {
             query = query.Where(job =>
-                job.RequiredSkills.Contains(filters.Skill, StringComparison.OrdinalIgnoreCase));
+                SearchTextHelper.Contains(job.RequiredSkills, filters.Skill));
         }
 
         if (!string.IsNullOrWhiteSpace(filters.Location))
         {
             query = query.Where(job =>
-                job.Location.Contains(filters.Location, StringComparison.OrdinalIgnoreCase));
+                SearchTextHelper.Contains(job.Location, filters.Location));
         }
 
         if (Enum.TryParse<JobType>(filters.JobType, true, out var selectedJobType))
