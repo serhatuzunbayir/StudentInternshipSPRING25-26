@@ -1,9 +1,80 @@
 @model StudentWeb.Models.JobSearchViewModel
 @{
     ViewData["Title"] = "Jobs";
+    var jobTypes = new[] { "Internship", "PartTime", "FullTime" };
 }
 
-<section class="placeholder-card">
-    <h1>Jobs</h1>
-    <p>Job search and filter screen scaffold is ready for skill, location and job type filters.</p>
+<section class="hero jobs-hero">
+    <span class="eyebrow">Student Jobs</span>
+    <h1>Browse active opportunities</h1>
+    <p>Filter jobs by skill, location, and type. Results are ranked by how well the required skills match your profile.</p>
+</section>
+
+<section class="jobs-search-card">
+    <form method="get" class="jobs-filter-form">
+        <div class="jobs-field">
+            <label asp-for="Skill">Skill</label>
+            <input asp-for="Skill" placeholder="Example: C#, SQL, Flutter" />
+        </div>
+
+        <div class="jobs-field">
+            <label asp-for="Location">Location</label>
+            <input asp-for="Location" placeholder="Example: Istanbul, Remote" />
+        </div>
+
+        <div class="jobs-field">
+            <label asp-for="JobType">Job Type</label>
+            <select asp-for="JobType">
+                <option value="">All Types</option>
+                @foreach (var jobType in jobTypes)
+                {
+                    <option value="@jobType">@jobType</option>
+                }
+            </select>
+        </div>
+
+        <div class="jobs-actions">
+            <button type="submit" class="jobs-primary-btn">Search</button>
+            <a asp-action="Index" class="jobs-secondary-btn">Clear</a>
+        </div>
+    </form>
+</section>
+
+<section class="jobs-results">
+    <div class="jobs-results-header">
+        <h2>Results</h2>
+        <span>@Model.Results.Count job(s) found</span>
+    </div>
+
+    @if (Model.Results.Count == 0)
+    {
+        <div class="jobs-empty-state">
+            <h3>No jobs found</h3>
+            <p>Try changing your filters or add more matching skills to your profile.</p>
+        </div>
+    }
+    else
+    {
+        <div class="jobs-grid">
+            @foreach (var job in Model.Results)
+            {
+                <article class="job-card">
+                    <div class="job-card-top">
+                        <div>
+                            <h3>@job.Title</h3>
+                            <p class="job-meta">@job.Location • @job.JobType</p>
+                        </div>
+                        <div class="job-match-badge">@job.MatchPercentage% match</div>
+                    </div>
+
+                    <p class="job-description">@job.Description</p>
+
+                    <div class="job-skills-block">
+                        <span class="job-skills-label">Required Skills</span>
+                        <p>@job.RequiredSkills</p>
+                    </div>
+                </article>
+            }
+        </div>
+    }
 </section>

@@ -2,5 +2,6 @@
 .idea/
 bin/
 obj/
+artifacts/
 Database/student_portal.db
 DesktopAdmin/*.user
