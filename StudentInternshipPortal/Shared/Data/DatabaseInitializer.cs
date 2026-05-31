@@ -61,6 +61,8 @@ public static class DatabaseInitializer
                 UserId INTEGER NOT NULL,
                 Title TEXT NOT NULL,
                 Message TEXT NOT NULL,
+                NotificationType TEXT NOT NULL DEFAULT '',
+                ReferenceKey TEXT NOT NULL DEFAULT '',
                 IsRead INTEGER NOT NULL,
                 CreatedAt TEXT NOT NULL,
                 FOREIGN KEY(UserId) REFERENCES Users(Id)
@@ -68,7 +70,37 @@ public static class DatabaseInitializer
             """;
         command.ExecuteNonQuery();
 
+        EnsureNotificationColumns(connection);
         SeedAdmin(connection);
+    }
+
+    private static void EnsureNotificationColumns(SqliteConnection connection)
+    {
+        var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        using (var pragmaCommand = connection.CreateCommand())
+        {
+            pragmaCommand.CommandText = "PRAGMA table_info(Notifications);";
+            using var reader = pragmaCommand.ExecuteReader();
+            while (reader.Read())
+            {
+                existingColumns.Add(reader.GetString(1));
+            }
+        }
+
+        if (!existingColumns.Contains("NotificationType"))
+        {
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = "ALTER TABLE Notifications ADD COLUMN NotificationType TEXT NOT NULL DEFAULT '';";
+            alterCommand.ExecuteNonQuery();
+        }
+
+        if (!existingColumns.Contains("ReferenceKey"))
+        {
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = "ALTER TABLE Notifications ADD COLUMN ReferenceKey TEXT NOT NULL DEFAULT '';";
+            alterCommand.ExecuteNonQuery();
+        }
     }
 
     private static void SeedAdmin(SqliteConnection connection)

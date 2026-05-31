@@ -16,13 +16,21 @@ public class NotificationManager
 
     public event NotificationCreatedEventHandler? NotificationCreated;
 
-    public Notification CreateNotification(int userId, string title, string message, DateTime? createdAt = null)
+    public Notification CreateNotification(
+        int userId,
+        string title,
+        string message,
+        DateTime? createdAt = null,
+        string? notificationType = null,
+        string? referenceKey = null)
     {
         var notification = new Notification
         {
             UserId = userId,
             Title = title,
             Message = message,
+            NotificationType = notificationType ?? string.Empty,
+            ReferenceKey = referenceKey ?? string.Empty,
             IsRead = false,
             CreatedAt = createdAt ?? DateTime.UtcNow
         };
@@ -33,13 +41,15 @@ public class NotificationManager
         using var command = connection.CreateCommand();
         command.CommandText =
             """
-            INSERT INTO Notifications (UserId, Title, Message, IsRead, CreatedAt)
-            VALUES ($userId, $title, $message, $isRead, $createdAt);
+            INSERT INTO Notifications (UserId, Title, Message, NotificationType, ReferenceKey, IsRead, CreatedAt)
+            VALUES ($userId, $title, $message, $notificationType, $referenceKey, $isRead, $createdAt);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("$userId", notification.UserId);
         command.Parameters.AddWithValue("$title", notification.Title);
         command.Parameters.AddWithValue("$message", notification.Message);
+        command.Parameters.AddWithValue("$notificationType", notification.NotificationType);
+        command.Parameters.AddWithValue("$referenceKey", notification.ReferenceKey);
         command.Parameters.AddWithValue("$isRead", notification.IsRead ? 1 : 0);
         command.Parameters.AddWithValue("$createdAt", notification.CreatedAt.ToString("O"));
         notification.Id = Convert.ToInt32(command.ExecuteScalar());
@@ -58,7 +68,7 @@ public class NotificationManager
         using var command = connection.CreateCommand();
         command.CommandText =
             """
-            SELECT Id, UserId, Title, Message, IsRead, CreatedAt
+            SELECT Id, UserId, Title, Message, NotificationType, ReferenceKey, IsRead, CreatedAt
             FROM Notifications
             WHERE UserId = $userId
             ORDER BY CreatedAt DESC;
@@ -74,12 +84,35 @@ public class NotificationManager
                 UserId = reader.GetInt32(1),
                 Title = reader.GetString(2),
                 Message = reader.GetString(3),
-                IsRead = reader.GetInt32(4) == 1,
-                CreatedAt = DateTime.Parse(reader.GetString(5), null, System.Globalization.DateTimeStyles.RoundtripKind)
+                NotificationType = reader.GetString(4),
+                ReferenceKey = reader.GetString(5),
+                IsRead = reader.GetInt32(6) == 1,
+                CreatedAt = DateTime.Parse(reader.GetString(7), null, System.Globalization.DateTimeStyles.RoundtripKind)
             });
         }
 
         return items;
+    }
+
+    public bool HasNotification(int userId, string notificationType, string referenceKey)
+    {
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT COUNT(1)
+            FROM Notifications
+            WHERE UserId = $userId
+              AND NotificationType = $notificationType
+              AND ReferenceKey = $referenceKey;
+            """;
+        command.Parameters.AddWithValue("$userId", userId);
+        command.Parameters.AddWithValue("$notificationType", notificationType);
+        command.Parameters.AddWithValue("$referenceKey", referenceKey);
+
+        return Convert.ToInt32(command.ExecuteScalar()) > 0;
     }
 
     public void MarkAsRead(int userId, int notificationId)

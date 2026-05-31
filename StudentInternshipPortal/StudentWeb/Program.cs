@@ -4,9 +4,12 @@ using StudentWeb.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var databasePath = builder.Configuration["Database:FileName"];
+var databaseHelper = new DatabaseHelper(databasePath: databasePath);
+
+DatabaseInitializer.Initialize(databaseHelper);
 
 // 1. Register Shared Infrastructure & Auth Services
-builder.Services.AddSingleton(_ => new DatabaseHelper(databasePath: databasePath));
+builder.Services.AddSingleton(databaseHelper);
 builder.Services.AddScoped<StudentAuthService>();
 
 // 2. Configure Cookie Authentication

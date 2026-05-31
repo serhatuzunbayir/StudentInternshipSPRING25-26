@@ -3,16 +3,21 @@ using DesktopAdmin.ViewModels;
 using Shared.Data;
 using Shared.Enums;
 using Shared.Models;
+using Shared.Services;
 
 namespace DesktopAdmin.Services;
 
 public class JobService
 {
+    private const string JobMatchNotificationType = "JobMatch";
     private readonly DatabaseHelper _databaseHelper;
+    private readonly MatchingService _matchingService = new();
+    private readonly NotificationManager _notificationManager;
 
     public JobService(DatabaseHelper databaseHelper)
     {
         _databaseHelper = databaseHelper;
+        _notificationManager = new NotificationManager(databaseHelper);
     }
 
     public List<JobListItemViewModel> GetAllJobs()
@@ -90,9 +95,12 @@ public class JobService
             """
             INSERT INTO Jobs (Title, Description, RequiredSkills, Location, JobType, IsActive, CreatedAt)
             VALUES ($title, $description, $requiredSkills, $location, $jobType, $isActive, $createdAt);
+            SELECT last_insert_rowid();
             """;
         FillJobParameters(command, job);
-        command.ExecuteNonQuery();
+        job.Id = Convert.ToInt32(command.ExecuteScalar());
+
+        NotifyMatchingStudents(job);
     }
 
     public void UpdateJob(Job job)
@@ -115,6 +123,8 @@ public class JobService
         FillJobParameters(command, job);
         command.Parameters.AddWithValue("$id", job.Id);
         command.ExecuteNonQuery();
+
+        NotifyMatchingStudents(job);
     }
 
     public void DeleteJob(int jobId)
@@ -142,5 +152,72 @@ public class JobService
         command.Parameters.AddWithValue("$jobType", (int)job.JobType);
         command.Parameters.AddWithValue("$isActive", job.IsActive ? 1 : 0);
         command.Parameters.AddWithValue("$createdAt", job.CreatedAt.ToString("O"));
+    }
+
+    private void NotifyMatchingStudents(Job job)
+    {
+        if (!job.IsActive)
+        {
+            return;
+        }
+
+        foreach (var candidate in GetStudentCandidates())
+        {
+            var matchPercentage = _matchingService.CalculateSkillMatchPercentage(candidate.Skills, job.RequiredSkills);
+            if (matchPercentage <= 0)
+            {
+                continue;
+            }
+
+            var referenceKey = $"job:{job.Id}";
+            if (_notificationManager.HasNotification(candidate.UserId, JobMatchNotificationType, referenceKey))
+            {
+                continue;
+            }
+
+            var message =
+                $"A new job matches your profile: '{job.Title}' in {job.Location}. " +
+                $"Your current skill match is {matchPercentage}%.";
+
+            _notificationManager.CreateNotification(
+                candidate.UserId,
+                "New Job Match",
+                message,
+                notificationType: JobMatchNotificationType,
+                referenceKey: referenceKey);
+        }
+    }
+
+    private List<StudentMatchCandidate> GetStudentCandidates()
+    {
+        var candidates = new List<StudentMatchCandidate>();
+
+        using var connection = _databaseHelper.CreateConnection();
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT UserId, Skills
+            FROM StudentProfiles;
+            """;
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            candidates.Add(new StudentMatchCandidate
+            {
+                UserId = reader.GetInt32(0),
+                Skills = reader.IsDBNull(1) ? string.Empty : reader.GetString(1)
+            });
+        }
+
+        return candidates;
+    }
+
+    private sealed class StudentMatchCandidate
+    {
+        public int UserId { get; set; }
+        public string Skills { get; set; } = string.Empty;
     }
 }
