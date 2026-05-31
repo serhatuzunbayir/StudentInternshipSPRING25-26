@@ -21,11 +21,12 @@ partial class AdminDashboardForm
     private System.Windows.Forms.TextBox txtApplicationSearch;
     private ComboBox cmbApplicationStatusFilter;
     private System.Windows.Forms.Button btnClearApplicationFilters;
+    private System.Windows.Forms.Button btnRefreshApplications;
     private Label lblApplicationSearch;
     private Label lblApplicationStatusFilter;
-    private Button btnAddJob;
-    private Button btnEditJob;
-    private Button btnDeleteJob;
+    private System.Windows.Forms.Button btnAddJob;
+    private System.Windows.Forms.Button btnEditJob;
+    private System.Windows.Forms.Button btnDeleteJob;
     private Button btnAccept;
     private Button btnReject;
     private System.Windows.Forms.Button btnMarkPending;
@@ -42,7 +43,7 @@ partial class AdminDashboardForm
     private Label lblAcceptedValue;
     private Label lblRejectedValue;
     private Label lblPendingValue;
-    private ListBox lstAuditLog;
+    private System.Windows.Forms.ListBox lstAuditLog;
     private Label lblAuditLog;
 
     protected override void Dispose(bool disposing)
@@ -79,6 +80,7 @@ partial class AdminDashboardForm
         txtApplicationSearch = new System.Windows.Forms.TextBox();
         cmbApplicationStatusFilter = new System.Windows.Forms.ComboBox();
         btnClearApplicationFilters = new System.Windows.Forms.Button();
+        btnRefreshApplications = new System.Windows.Forms.Button();
         lblApplicationSearch = new System.Windows.Forms.Label();
         lblApplicationStatusFilter = new System.Windows.Forms.Label();
         btnMarkPending = new System.Windows.Forms.Button();
@@ -99,6 +101,8 @@ partial class AdminDashboardForm
         lblTotalApplications = new System.Windows.Forms.Label();
         lblActiveJobs = new System.Windows.Forms.Label();
         lblTotalStudents = new System.Windows.Forms.Label();
+        lblAuditLog = new System.Windows.Forms.Label();
+        lstAuditLog = new System.Windows.Forms.ListBox();
         tabMain.SuspendLayout();
         tabJobs.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvJobs).BeginInit();
@@ -112,7 +116,7 @@ partial class AdminDashboardForm
         lblWelcome.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
         lblWelcome.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
         lblWelcome.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)77)), ((int)((byte)88)), ((int)((byte)110)));
-        lblWelcome.Location = new System.Drawing.Point(596, 18);
+        lblWelcome.Location = new System.Drawing.Point(695, 18);
         lblWelcome.Name = "lblWelcome";
         lblWelcome.Size = new System.Drawing.Size(287, 23);
         lblWelcome.TabIndex = 0;
@@ -130,7 +134,7 @@ partial class AdminDashboardForm
         tabMain.Location = new System.Drawing.Point(12, 54);
         tabMain.Name = "tabMain";
         tabMain.SelectedIndex = 0;
-        tabMain.Size = new System.Drawing.Size(871, 571);
+        tabMain.Size = new System.Drawing.Size(970, 574);
         tabMain.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
         tabMain.TabIndex = 1;
         // 
@@ -151,7 +155,7 @@ partial class AdminDashboardForm
         tabJobs.Location = new System.Drawing.Point(4, 38);
         tabJobs.Name = "tabJobs";
         tabJobs.Padding = new System.Windows.Forms.Padding(3);
-        tabJobs.Size = new System.Drawing.Size(863, 529);
+        tabJobs.Size = new System.Drawing.Size(962, 532);
         tabJobs.TabIndex = 0;
         tabJobs.Text = "Jobs";
         // 
@@ -246,9 +250,9 @@ partial class AdminDashboardForm
         btnClearJobFilters.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
         btnClearJobFilters.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
         btnClearJobFilters.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)87)), ((int)((byte)97)), ((int)((byte)122)));
-        btnClearJobFilters.Location = new System.Drawing.Point(732, 62);
+        btnClearJobFilters.Location = new System.Drawing.Point(833, 28);
         btnClearJobFilters.Name = "btnClearJobFilters";
-        btnClearJobFilters.Size = new System.Drawing.Size(95, 28);
+        btnClearJobFilters.Size = new System.Drawing.Size(93, 28);
         btnClearJobFilters.TabIndex = 10;
         btnClearJobFilters.Text = "Clear";
         btnClearJobFilters.UseVisualStyleBackColor = false;
@@ -299,7 +303,7 @@ partial class AdminDashboardForm
         dgvJobs.ReadOnly = true;
         dgvJobs.RowHeadersWidth = 51;
         dgvJobs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-        dgvJobs.Size = new System.Drawing.Size(809, 395);
+        dgvJobs.Size = new System.Drawing.Size(908, 398);
         dgvJobs.TabIndex = 0;
         // 
         // tabApplications
@@ -308,6 +312,7 @@ partial class AdminDashboardForm
         tabApplications.Controls.Add(txtApplicationSearch);
         tabApplications.Controls.Add(cmbApplicationStatusFilter);
         tabApplications.Controls.Add(btnClearApplicationFilters);
+        tabApplications.Controls.Add(btnRefreshApplications);
         tabApplications.Controls.Add(lblApplicationSearch);
         tabApplications.Controls.Add(lblApplicationStatusFilter);
         tabApplications.Controls.Add(btnMarkPending);
@@ -317,7 +322,7 @@ partial class AdminDashboardForm
         tabApplications.Location = new System.Drawing.Point(4, 38);
         tabApplications.Name = "tabApplications";
         tabApplications.Padding = new System.Windows.Forms.Padding(3);
-        tabApplications.Size = new System.Drawing.Size(863, 529);
+        tabApplications.Size = new System.Drawing.Size(962, 532);
         tabApplications.TabIndex = 1;
         tabApplications.Text = "Applications";
         // 
@@ -359,6 +364,22 @@ partial class AdminDashboardForm
         btnClearApplicationFilters.Text = "Clear";
         btnClearApplicationFilters.UseVisualStyleBackColor = false;
         btnClearApplicationFilters.Click += btnClearApplicationFilters_Click;
+        // 
+        // btnRefreshApplications
+        // 
+        btnRefreshApplications.BackColor = System.Drawing.Color.FromArgb(((int)((byte)26)), ((int)((byte)115)), ((int)((byte)232)));
+        btnRefreshApplications.Cursor = System.Windows.Forms.Cursors.Hand;
+        btnRefreshApplications.FlatAppearance.BorderSize = 0;
+        btnRefreshApplications.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+        btnRefreshApplications.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+        btnRefreshApplications.ForeColor = System.Drawing.Color.White;
+        btnRefreshApplications.Location = new System.Drawing.Point(848, 29);
+        btnRefreshApplications.Name = "btnRefreshApplications";
+        btnRefreshApplications.Size = new System.Drawing.Size(71, 28);
+        btnRefreshApplications.TabIndex = 9;
+        btnRefreshApplications.Text = "Refresh";
+        btnRefreshApplications.UseVisualStyleBackColor = false;
+        btnRefreshApplications.Click += btnRefreshApplications_Click;
         // 
         // lblApplicationSearch
         // 
@@ -442,7 +463,7 @@ partial class AdminDashboardForm
         dgvApplications.ReadOnly = true;
         dgvApplications.RowHeadersWidth = 51;
         dgvApplications.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-        dgvApplications.Size = new System.Drawing.Size(833, 414);
+        dgvApplications.Size = new System.Drawing.Size(907, 417);
         dgvApplications.TabIndex = 0;
         // 
         // tabReports
@@ -461,10 +482,12 @@ partial class AdminDashboardForm
         tabReports.Controls.Add(lblTotalApplications);
         tabReports.Controls.Add(lblActiveJobs);
         tabReports.Controls.Add(lblTotalStudents);
+        tabReports.Controls.Add(lblAuditLog);
+        tabReports.Controls.Add(lstAuditLog);
         tabReports.Location = new System.Drawing.Point(4, 38);
         tabReports.Name = "tabReports";
         tabReports.Padding = new System.Windows.Forms.Padding(3);
-        tabReports.Size = new System.Drawing.Size(863, 529);
+        tabReports.Size = new System.Drawing.Size(962, 532);
         tabReports.TabIndex = 2;
         tabReports.Text = "Reports";
         // 
@@ -616,12 +639,32 @@ partial class AdminDashboardForm
         lblTotalStudents.TabIndex = 0;
         lblTotalStudents.Text = "Total Students";
         // 
+        // lblAuditLog
+        // 
+        lblAuditLog.AutoSize = true;
+        lblAuditLog.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+        lblAuditLog.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)77)), ((int)((byte)88)), ((int)((byte)110)));
+        lblAuditLog.Location = new System.Drawing.Point(26, 375);
+        lblAuditLog.Name = "lblAuditLog";
+        lblAuditLog.Size = new System.Drawing.Size(166, 23);
+        lblAuditLog.TabIndex = 13;
+        lblAuditLog.Text = "Admin Activity Log";
+        // 
+        // lstAuditLog
+        // 
+        lstAuditLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+        lstAuditLog.Font = new System.Drawing.Font("Segoe UI", 9F);
+        lstAuditLog.Location = new System.Drawing.Point(26, 400);
+        lstAuditLog.Name = "lstAuditLog";
+        lstAuditLog.Size = new System.Drawing.Size(913, 102);
+        lstAuditLog.TabIndex = 14;
+        // 
         // AdminDashboardForm
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         BackColor = System.Drawing.Color.FromArgb(((int)((byte)243)), ((int)((byte)246)), ((int)((byte)252)));
-        ClientSize = new System.Drawing.Size(895, 636);
+        ClientSize = new System.Drawing.Size(994, 639);
         Controls.Add(tabMain);
         Controls.Add(lblWelcome);
         Font = new System.Drawing.Font("Segoe UI", 9F);
@@ -640,22 +683,6 @@ partial class AdminDashboardForm
         tabReports.ResumeLayout(false);
         tabReports.PerformLayout();
         ResumeLayout(false);
-        lstAuditLog = new ListBox();
-        lblAuditLog = new Label();
-
-        lblAuditLog.Text = "Admin Activity Log";
-        lblAuditLog.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-        lblAuditLog.ForeColor = Color.FromArgb(77, 88, 110);
-        lblAuditLog.Location = new Point(26, 375);
-        lblAuditLog.AutoSize = true;
-
-        lstAuditLog.Location = new Point(26, 400);
-        lstAuditLog.Size = new Size(800, 110);
-        lstAuditLog.Font = new Font("Segoe UI", 9F);
-        lstAuditLog.BorderStyle = BorderStyle.FixedSingle;
-
-        tabReports.Controls.Add(lblAuditLog);
-        tabReports.Controls.Add(lstAuditLog);
     }
 }
 #nullable restore

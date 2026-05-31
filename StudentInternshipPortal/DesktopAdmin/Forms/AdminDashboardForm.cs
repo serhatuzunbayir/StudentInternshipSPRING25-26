@@ -194,7 +194,6 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         if (selectedApplication is null)
         {
             MessageBox.Show("Select an application first.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            _auditLogger.Log($"Application {selectedApplication.Id} marked as {status}");
             return;
         }
 
@@ -307,5 +306,11 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
     private void NotificationManager_NotificationCreated(object? sender, Shared.Models.Notification notification)
     {
         MessageBox.Show(notification.Message, notification.Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    private void btnRefreshApplications_Click(object sender, EventArgs e)
+    {
+        LoadApplications();
+        LoadReports();
     }
 }
