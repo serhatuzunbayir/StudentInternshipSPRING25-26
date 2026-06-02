@@ -18,8 +18,9 @@ public class ResumeController : Controller
     public IActionResult Index()
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        string username = User.Identity?.Name ?? "";
 
-        var resume = _resumeBuilderService.BuildResume(userId);
+        var resume = _resumeBuilderService.BuildResume(userId, username);
 
         return View(resume);
     }
@@ -27,8 +28,9 @@ public class ResumeController : Controller
     public IActionResult Download()
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        string username = User.Identity?.Name ?? "";
 
-        var fileBytes = _resumeBuilderService.GenerateResumeFile(userId);
+        var fileBytes = _resumeBuilderService.GenerateResumeFile(userId, username);
 
         return File(fileBytes, "text/plain", "resume.txt");
     }

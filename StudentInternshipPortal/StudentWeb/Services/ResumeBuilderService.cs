@@ -12,7 +12,7 @@ public class ResumeBuilderService
         _profileService = profileService;
     }
 
-    public ResumeViewModel BuildResume(int userId)
+    public ResumeViewModel BuildResume(int userId, string username)
     {
         var profile = _profileService.GetProfileByUserId(userId);
 
@@ -31,6 +31,9 @@ public class ResumeBuilderService
 
 FULL NAME
 {profile.FullName}
+
+EMAIL
+{username}
 
 PHONE
 {profile.Phone}
@@ -52,6 +55,7 @@ EXPERIENCE
         {
             HasProfile = true,
             FullName = profile.FullName,
+            Email = username,
             AboutMe = profile.AboutMe,
             Skills = profile.Skills,
             Education = profile.Education,
@@ -61,9 +65,9 @@ EXPERIENCE
         };
     }
 
-    public byte[] GenerateResumeFile(int userId)
+    public byte[] GenerateResumeFile(int userId, string username)
     {
-        var resume = BuildResume(userId);
+        var resume = BuildResume(userId, username);
 
         return Encoding.UTF8.GetBytes(resume.ResumeText);
     }
