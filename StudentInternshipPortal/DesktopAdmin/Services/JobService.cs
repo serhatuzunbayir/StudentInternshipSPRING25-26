@@ -1,4 +1,4 @@
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using DesktopAdmin.ViewModels;
 using Shared.Data;
 using Shared.Enums;
@@ -7,6 +7,7 @@ using Shared.Services;
 
 namespace DesktopAdmin.Services;
 
+// This service handles all database operations (CRUD) for Jobs on the desktop admin side.
 public class JobService
 {
     private const string JobMatchNotificationType = "JobMatch";
@@ -20,6 +21,7 @@ public class JobService
         _notificationManager = new NotificationManager(databaseHelper);
     }
 
+    // Fetches all jobs stored in the database, newest first.
     public List<JobListItemViewModel> GetAllJobs()
     {
         var items = new List<JobListItemViewModel>();
@@ -52,6 +54,7 @@ public class JobService
         return items;
     }
 
+    // Finds and returns a single job profile by its ID.
     public Job? GetJobById(int jobId)
     {
         using var connection = _databaseHelper.CreateConnection();
@@ -85,6 +88,7 @@ public class JobService
         };
     }
 
+    // Saves a new job record to the database, gets the new auto-incremented ID, and notifies matched students.
     public void AddJob(Job job)
     {
         using var connection = _databaseHelper.CreateConnection();
@@ -98,11 +102,15 @@ public class JobService
             SELECT last_insert_rowid();
             """;
         FillJobParameters(command, job);
+        
+        // ExecuteScalar executes query and returns the newly generated primary key ID.
         job.Id = Convert.ToInt32(command.ExecuteScalar());
 
+        // Notify matching students about this new job
         NotifyMatchingStudents(job);
     }
 
+    // Updates an existing job record and re-evaluates matches to notify potential new students.
     public void UpdateJob(Job job)
     {
         using var connection = _databaseHelper.CreateConnection();
@@ -124,25 +132,30 @@ public class JobService
         command.Parameters.AddWithValue("$id", job.Id);
         command.ExecuteNonQuery();
 
+        // Notify any students whose profiles match the updated job details
         NotifyMatchingStudents(job);
     }
 
+    // Deletes a job listing and automatically purges all applications submitted to that job.
     public void DeleteJob(int jobId)
     {
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
 
+        // 1. Delete associated applications first to respect foreign keys
         using var deleteApplications = connection.CreateCommand();
         deleteApplications.CommandText = "DELETE FROM Applications WHERE JobId = $jobId;";
         deleteApplications.Parameters.AddWithValue("$jobId", jobId);
         deleteApplications.ExecuteNonQuery();
 
+        // 2. Delete the actual job record
         using var deleteJob = connection.CreateCommand();
         deleteJob.CommandText = "DELETE FROM Jobs WHERE Id = $jobId;";
         deleteJob.Parameters.AddWithValue("$jobId", jobId);
         deleteJob.ExecuteNonQuery();
     }
 
+    // Helper method to add parameters to SQL commands, preventing injection attacks.
     private static void FillJobParameters(SqliteCommand command, Job job)
     {
         command.Parameters.AddWithValue("$title", job.Title);
@@ -154,22 +167,27 @@ public class JobService
         command.Parameters.AddWithValue("$createdAt", job.CreatedAt.ToString("O"));
     }
 
+    // Scans all registered students and sends them alerts if their skills match this job.
     private void NotifyMatchingStudents(Job job)
     {
+        // Only notify if the job posting is currently Active
         if (!job.IsActive)
         {
             return;
         }
 
+        // Loop through all candidate students
         foreach (var candidate in GetStudentCandidates())
         {
+            // Compute match percentage
             var matchPercentage = _matchingService.CalculateSkillMatchPercentage(candidate.Skills, job.RequiredSkills);
             if (matchPercentage <= 0)
             {
-                continue;
+                continue; // No matching skills
             }
 
             var referenceKey = $"job:{job.Id}";
+            // Skip if we already sent an alert for this job to this student
             if (_notificationManager.HasNotification(candidate.UserId, JobMatchNotificationType, referenceKey))
             {
                 continue;
@@ -179,6 +197,7 @@ public class JobService
                 $"A new job matches your profile: '{job.Title}' in {job.Location}. " +
                 $"Your current skill match is {matchPercentage}%.";
 
+            // Save the notification alert
             _notificationManager.CreateNotification(
                 candidate.UserId,
                 "New Job Match",
@@ -188,6 +207,7 @@ public class JobService
         }
     }
 
+    // Fetches student user IDs and skills list from the DB to run matching scans.
     private List<StudentMatchCandidate> GetStudentCandidates()
     {
         var candidates = new List<StudentMatchCandidate>();
@@ -215,9 +235,11 @@ public class JobService
         return candidates;
     }
 
+    // Nested private class to hold candidate profiles for the notifier matching checks.
     private sealed class StudentMatchCandidate
     {
         public int UserId { get; set; }
         public string Skills { get; set; } = string.Empty;
     }
 }
+

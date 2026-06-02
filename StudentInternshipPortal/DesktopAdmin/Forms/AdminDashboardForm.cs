@@ -1,4 +1,4 @@
-using DesktopAdmin.Services;
+﻿using DesktopAdmin.Services;
 using DesktopAdmin.ViewModels;
 using Shared.Data;
 using Shared.Enums;
@@ -19,16 +19,12 @@ public partial class AdminDashboardForm : Form
     private List<ApplicationListItemViewModel> _applicationItems = [];
     private readonly AuditLogger _auditLogger = new();
 
- 
-
-
-public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string adminUsername)
+    public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string adminUsername)
     {
         _jobService = new JobService(databaseHelper);
         _notificationManager = new NotificationManager(databaseHelper);
         _applicationService = new ApplicationService(databaseHelper, _notificationManager);
         _reportService = new ReportService(databaseHelper);
-
 
         InitializeComponent();
       
@@ -36,12 +32,14 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         ApplyGridTheme(dgvJobs);
         ApplyGridTheme(dgvApplications);
 
-
-
         // Wire cell double click on application grid
         dgvApplications.CellDoubleClick += dgvApplications_CellDoubleClick;
 
+        // Subscribe to the notification manager's created event to trigger UI popups.
         _notificationManager.NotificationCreated += NotificationManager_NotificationCreated;
+        
+        // Subscribe to the audit logging delegate event.
+        // It appends admin log entries to the lstAuditLog list box control.
         _auditLogger.AdminActionPerformed += action =>
         {
             lstAuditLog.Items.Insert(0, $"{DateTime.Now:HH:mm:ss} - {action}");
@@ -255,6 +253,7 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         LoadReports();
     }
 
+    // Filters the list of jobs using LINQ Where queries based on search text and combo boxes.
     private void ApplyJobFilters()
     {
         IEnumerable<JobListItemViewModel> query = _jobItems;
@@ -262,6 +261,7 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         var searchText = txtJobSearch.Text.Trim();
         if (!string.IsNullOrWhiteSpace(searchText))
         {
+            // Use LINQ Where to check if the job matches title, location, or skills
             query = query.Where(item =>
                 SearchTextHelper.Contains(item.Title, searchText) ||
                 SearchTextHelper.Contains(item.Location, searchText) ||
@@ -271,20 +271,24 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         var selectedJobType = cmbJobTypeFilter.SelectedItem?.ToString();
         if (!string.IsNullOrWhiteSpace(selectedJobType) && selectedJobType != "All Types")
         {
+            // Use LINQ Where to filter by job type (Internship, FullTime etc.)
             query = query.Where(item => item.JobType.Equals(selectedJobType, StringComparison.OrdinalIgnoreCase));
         }
 
         var selectedActiveStatus = cmbJobStatusFilter.SelectedItem?.ToString();
         if (!string.IsNullOrWhiteSpace(selectedActiveStatus) && selectedActiveStatus != "All Statuses")
         {
+            // Use LINQ Where to filter by active status (Active vs Passive)
             query = query.Where(item => item.ActiveStatus.Equals(selectedActiveStatus, StringComparison.OrdinalIgnoreCase));
         }
 
         dgvJobs.AutoGenerateColumns = true;
+        // Run ToList() to execute the query and bind it to the DataGridView source
         dgvJobs.DataSource = query.ToList();
         ConfigureIdColumns(dgvJobs);
     }
 
+    // Filters the list of applications using LINQ Where queries based on search inputs.
     private void ApplyApplicationFilters()
     {
         IEnumerable<ApplicationListItemViewModel> query = _applicationItems;
@@ -292,6 +296,7 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         var searchText = txtApplicationSearch.Text.Trim();
         if (!string.IsNullOrWhiteSpace(searchText))
         {
+            // Use LINQ Where to match student name or job title
             query = query.Where(item =>
                 SearchTextHelper.Contains(item.StudentName, searchText) ||
                 SearchTextHelper.Contains(item.JobTitle, searchText));
@@ -300,10 +305,12 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         var selectedStatus = cmbApplicationStatusFilter.SelectedItem?.ToString();
         if (!string.IsNullOrWhiteSpace(selectedStatus) && selectedStatus != "All Statuses")
         {
+            // Use LINQ Where to filter by application status (Accepted, Rejected, Pending)
             query = query.Where(item => item.Status.Equals(selectedStatus, StringComparison.OrdinalIgnoreCase));
         }
 
         dgvApplications.AutoGenerateColumns = true;
+        // Bind the filtered list
         dgvApplications.DataSource = query.ToList();
         ConfigureIdColumns(dgvApplications);
     }

@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using StudentWeb.Models;
 using StudentWeb.Services;
 
 namespace StudentWeb.Controllers;
 
+// This controller manages landing page views, loading dashboard stats for authenticated students.
 public class HomeController : Controller
 {
     private readonly JobBrowseService _jobBrowseService;
@@ -21,14 +22,17 @@ public class HomeController : Controller
         _notificationQueryService = notificationQueryService;
     }
 
+    // Displays the student home landing/dashboard page.
     public IActionResult Index()
     {
+        // Check if the current user is authenticated
         var isAuthenticated = User.Identity?.IsAuthenticated == true;
         var model = new HomeViewModel
         {
             IsAuthenticated = isAuthenticated
         };
 
+        // If logged in, fetch and load counts, notifications, and profile details
         if (isAuthenticated)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -41,3 +45,4 @@ public class HomeController : Controller
         return View(model);
     }
 }
+

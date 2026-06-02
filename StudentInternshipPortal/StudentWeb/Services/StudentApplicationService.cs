@@ -1,9 +1,10 @@
-using Shared.Data;
+﻿using Shared.Data;
 using Shared.Enums;
 using StudentWeb.Models;
 
 namespace StudentWeb.Services;
 
+// This service manages student applications (listing them, counting them, and submitting new ones).
 public class StudentApplicationService
 {
     private readonly DatabaseHelper _databaseHelper;
@@ -13,6 +14,7 @@ public class StudentApplicationService
         _databaseHelper = databaseHelper;
     }
 
+    // Fetches all applications submitted by a specific student, sorted by newest first.
     public List<ApplicationListItemViewModel> GetApplicationsForStudent(int userId)
     {
         var items = new List<ApplicationListItemViewModel>();
@@ -21,6 +23,7 @@ public class StudentApplicationService
         connection.Open();
 
         using var command = connection.CreateCommand();
+        // Inner joins Applications, StudentProfiles, and Jobs to get full details
         command.CommandText =
             """
             SELECT a.Id,
@@ -51,6 +54,7 @@ public class StudentApplicationService
                 JobType = ((JobType)reader.GetInt32(4)).ToString(),
                 RequiredSkills = reader.GetString(5),
                 Status = ((ApplicationStatus)reader.GetInt32(6)).ToString(),
+                // Format the SQLite date string to a local readable date format
                 AppliedAt = DateTime.Parse(reader.GetString(7)).ToLocalTime().ToString("yyyy-MM-dd HH:mm")
             });
         }
@@ -58,6 +62,7 @@ public class StudentApplicationService
         return items;
     }
 
+    // Returns total count of applications submitted by a student.
     public int GetApplicationCountForStudent(int userId)
     {
         using var connection = _databaseHelper.CreateConnection();
@@ -76,11 +81,13 @@ public class StudentApplicationService
         return Convert.ToInt32(command.ExecuteScalar());
     }
 
+    // Validates bounds checks (profile exists, job active, not already applied) and inserts application.
     public SubmitApplicationResult SubmitApplication(int userId, int jobId, string? resumeFileName)
     {
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
 
+        // 1. Verify student profile exists
         using var profileCommand = connection.CreateCommand();
         profileCommand.CommandText =
             """
@@ -96,6 +103,7 @@ public class StudentApplicationService
             return SubmitApplicationResult.ProfileMissing;
         }
 
+        // 2. Verify job exists and is currently active
         using var jobCommand = connection.CreateCommand();
         jobCommand.CommandText =
             """
@@ -109,6 +117,7 @@ public class StudentApplicationService
             return SubmitApplicationResult.JobUnavailable;
         }
 
+        // 3. Verify student hasn't already applied for this job
         using var existingCommand = connection.CreateCommand();
         existingCommand.CommandText =
             """
@@ -126,6 +135,7 @@ public class StudentApplicationService
 
         var now = DateTime.UtcNow.ToString("O");
 
+        // 4. Save/insert the application record to DB
         using var insertCommand = connection.CreateCommand();
         insertCommand.CommandText =
             """
@@ -144,6 +154,7 @@ public class StudentApplicationService
     }
 }
 
+// Result options when applying for a job listing
 public enum SubmitApplicationResult
 {
     Success = 1,
@@ -151,3 +162,4 @@ public enum SubmitApplicationResult
     JobUnavailable = 3,
     ProfileMissing = 4
 }
+

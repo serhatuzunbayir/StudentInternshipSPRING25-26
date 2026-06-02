@@ -1,4 +1,4 @@
-namespace DesktopAdmin.ViewModels;
+﻿namespace DesktopAdmin.ViewModels;
 
 public class JobListItemViewModel
 {

@@ -1,4 +1,4 @@
-#nullable disable
+﻿#nullable disable
 namespace DesktopAdmin.Forms;
 
 partial class AdminDashboardForm

@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using StudentWeb.Services;
 
 namespace StudentWeb.Controllers;
 
+// This controller displays a student's notifications and updates their read statuses.
 [Authorize]
 public class NotificationsController : Controller
 {
@@ -15,6 +16,7 @@ public class NotificationsController : Controller
         _notificationQueryService = notificationQueryService;
     }
 
+    // Displays the notifications page.
     public IActionResult Index()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -22,6 +24,7 @@ public class NotificationsController : Controller
         return View(model);
     }
 
+    // Marks a specific notification as read.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult MarkAsRead(int notificationId)
@@ -31,6 +34,7 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // Marks all notifications of the student as read.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult MarkAllAsRead()
@@ -40,3 +44,4 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 }
+

@@ -1,10 +1,11 @@
-using DesktopAdmin.ViewModels;
+﻿using DesktopAdmin.ViewModels;
 using Shared.Data;
 using Shared.Enums;
 using Shared.Services;
 
 namespace DesktopAdmin.Services;
 
+// This service handles fetching job applications, retrieving applicant details, and updating status from the Admin perspective.
 public class ApplicationService
 {
     private readonly DatabaseHelper _databaseHelper;
@@ -16,6 +17,8 @@ public class ApplicationService
         _notificationManager = notificationManager;
     }
 
+    // Retrieves all student applications submitted to the portal.
+    // It runs an INNER JOIN across Applications, StudentProfiles, and Jobs tables.
     public List<ApplicationListItemViewModel> GetAllApplications()
     {
         var items = new List<ApplicationListItemViewModel>();
@@ -47,6 +50,8 @@ public class ApplicationService
         {
             var studentSkills = reader.IsDBNull(6) ? string.Empty : reader.GetString(6);
             var requiredSkills = reader.IsDBNull(7) ? string.Empty : reader.GetString(7);
+            
+            // Calculate how well the student's skills match the job requirements
             var matchPercentage = matchingService.CalculateSkillMatchPercentage(studentSkills, requiredSkills);
             var resumeFileName = reader.IsDBNull(8) ? string.Empty : reader.GetString(8);
 
@@ -66,12 +71,14 @@ public class ApplicationService
         return items;
     }
 
+    // Fetches the detailed profile information for a specific student applicant.
     public StudentProfileDetailsViewModel? GetStudentProfileDetails(int studentUserId)
     {
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
 
         using var command = connection.CreateCommand();
+        // Inner join StudentProfiles with Users to get the username/email along with profile details
         command.CommandText =
             """
             SELECT u.Username,
@@ -105,6 +112,8 @@ public class ApplicationService
         return null;
     }
 
+    // Updates the evaluation status (Accepted, Rejected, Pending) of a job application.
+    // Also inserts a notification record to alert the student about their application status.
     public void UpdateStatus(int applicationId, ApplicationStatus newStatus)
     {
         var statusChangedAt = DateTime.UtcNow;
@@ -112,6 +121,7 @@ public class ApplicationService
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
 
+        // 1. Fetch student user ID and job title to build notification alert
         using var queryCommand = connection.CreateCommand();
         queryCommand.CommandText =
             """
@@ -137,6 +147,7 @@ public class ApplicationService
             jobTitle = reader.GetString(1);
         }
 
+        // 2. Perform database update statement on Applications table
         using var updateCommand = connection.CreateCommand();
         updateCommand.CommandText =
             """
@@ -150,6 +161,7 @@ public class ApplicationService
         updateCommand.Parameters.AddWithValue("$applicationId", applicationId);
         updateCommand.ExecuteNonQuery();
 
+        // 3. Generate a notification to let the student know about the review result
         var notificationTitle = GetNotificationTitle(newStatus);
         var notificationMessage = GetNotificationMessage(jobTitle, newStatus);
 
@@ -160,6 +172,7 @@ public class ApplicationService
             statusChangedAt);
     }
 
+    // Helper method to get the notification header title based on status.
     private static string GetNotificationTitle(ApplicationStatus status)
     {
         return status switch
@@ -171,6 +184,7 @@ public class ApplicationService
         };
     }
 
+    // Helper method to get the notification alert body text based on status.
     private static string GetNotificationMessage(string jobTitle, ApplicationStatus status)
     {
         return status switch
@@ -182,3 +196,4 @@ public class ApplicationService
         };
     }
 }
+

@@ -1,4 +1,4 @@
-namespace StudentWeb.Models;
+﻿namespace StudentWeb.Models;
 
 public class ProfileEditViewModel
 {
