@@ -71,7 +71,30 @@ public static class DatabaseInitializer
         command.ExecuteNonQuery();
 
         EnsureNotificationColumns(connection);
+        EnsureApplicationColumns(connection);
         SeedAdmin(connection);
+    }
+
+    private static void EnsureApplicationColumns(SqliteConnection connection)
+    {
+        var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        using (var pragmaCommand = connection.CreateCommand())
+        {
+            pragmaCommand.CommandText = "PRAGMA table_info(Applications);";
+            using var reader = pragmaCommand.ExecuteReader();
+            while (reader.Read())
+            {
+                existingColumns.Add(reader.GetString(1));
+            }
+        }
+
+        if (!existingColumns.Contains("ResumeFileName"))
+        {
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = "ALTER TABLE Applications ADD COLUMN ResumeFileName TEXT;";
+            alterCommand.ExecuteNonQuery();
+        }
     }
 
     private static void EnsureNotificationColumns(SqliteConnection connection)

@@ -87,11 +87,7 @@
                         }
                         else
                         {
-                            <form asp-controller="Applications" asp-action="Submit" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="jobId" value="@job.Id" />
-                                <button type="submit" class="jobs-primary-btn">Apply now</button>
-                            </form>
+                            <button type="button" class="jobs-primary-btn apply-btn-trigger" data-job-id="@job.Id" data-job-title="@job.Title">Apply now</button>
                         }
                     </div>
                 </article>
@@ -99,3 +95,252 @@
         </div>
     }
 </section>
+
+<!-- Apply Modal Overlay -->
+<div id="applyModal" class="apply-modal">
+    <div class="apply-modal-content">
+        <div class="apply-modal-header">
+            <h3>Apply for Job</h3>
+            <button type="button" class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <form asp-controller="Applications" asp-action="Submit" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="modalJobId" name="jobId" value="" />
+            
+            <div class="apply-option">
+                <label class="apply-option-label">
+                    <input type="radio" name="resumeOption" value="profile" checked id="radioProfile" />
+                    <span>Apply with Profile CV</span>
+                </label>
+                <p class="apply-option-desc">Use the CV automatically generated from your student profile details (skills, experience, education, etc.).</p>
+            </div>
+
+            <div class="apply-option">
+                <label class="apply-option-label">
+                    <input type="radio" name="resumeOption" value="upload" id="radioUpload" />
+                    <span>Upload a Custom CV</span>
+                </label>
+                <p class="apply-option-desc">Upload a PDF or Word document (.pdf, .doc, .docx) from your device.</p>
+                <div class="apply-file-input-wrapper" id="fileInputWrapper">
+                    <input type="file" name="resumeFile" class="apply-file-input" accept=".pdf,.doc,.docx" id="resumeFileInput" />
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="jobs-secondary-btn" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="jobs-primary-btn">Submit Application</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Modal styles */
+    .apply-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(31, 41, 51, 0.4);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .apply-modal-content {
+        background-color: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 2rem;
+        width: min(500px, calc(100% - 2rem));
+        box-shadow: 0 24px 64px rgba(31, 41, 51, 0.16);
+        position: relative;
+        animation: modalFadeIn 0.3s ease;
+    }
+
+    @@keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .apply-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 0.75rem;
+    }
+
+    .apply-modal-header h3 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        color: var(--muted);
+        line-height: 1;
+        padding: 0;
+    }
+
+    .close-modal:hover {
+        color: var(--ink);
+    }
+
+    .apply-option {
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.5);
+        transition: all 0.2s ease;
+    }
+
+    .apply-option:focus-within, .apply-option:hover {
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .apply-option-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--ink);
+        font-size: 1.05rem;
+    }
+
+    .apply-option-label input[type="radio"] {
+        margin: 0;
+        width: 1.15rem;
+        height: 1.15rem;
+        accent-color: var(--accent);
+    }
+
+    .apply-option-desc {
+        margin: 0.5rem 0 0 1.9rem;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .apply-file-input-wrapper {
+        margin-left: 1.9rem;
+        margin-top: 0.75rem;
+        display: none;
+    }
+
+    .apply-file-input {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        border: 1.5px dashed var(--line);
+        border-radius: 10px;
+        background: #fff;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.85rem;
+    }
+
+    .apply-file-input:hover {
+        border-color: var(--accent);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("applyModal");
+        const modalJobIdInput = document.getElementById("modalJobId");
+        const modalTitle = modal.querySelector(".apply-modal-header h3");
+        const closeBtn = document.getElementById("closeModalBtn");
+        const cancelBtn = document.getElementById("cancelModalBtn");
+        const radioProfile = document.getElementById("radioProfile");
+        const radioUpload = document.getElementById("radioUpload");
+        const fileWrapper = document.getElementById("fileInputWrapper");
+        const fileInput = document.getElementById("resumeFileInput");
+
+        // Open Modal
+        document.querySelectorAll(".apply-btn-trigger").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const jobId = this.getAttribute("data-job-id");
+                const jobTitle = this.getAttribute("data-job-title");
+
+                modalJobIdInput.value = jobId;
+                modalTitle.textContent = `Apply for ${jobTitle}`;
+                modal.style.display = "flex";
+            });
+        });
+
+        // Close Modal
+        function closeModal() {
+            modal.style.display = "none";
+            // Reset modal state
+            radioProfile.checked = true;
+            fileWrapper.style.display = "none";
+            fileInput.value = "";
+            fileInput.removeAttribute("required");
+        }
+
+        closeBtn.addEventListener("click", closeModal);
+        cancelBtn.addEventListener("click", closeModal);
+
+        window.addEventListener("click", function (e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Toggle Upload Field
+        radioProfile.addEventListener("change", function () {
+            if (this.checked) {
+                fileWrapper.style.display = "none";
+                fileInput.removeAttribute("required");
+            }
+        });
+
+        radioUpload.addEventListener("change", function () {
+            if (this.checked) {
+                fileWrapper.style.display = "block";
+                fileInput.setAttribute("required", "required");
+            }
+        });
+
+        // Client-side file validation
+        const form = modal.querySelector("form");
+        form.addEventListener("submit", function (e) {
+            if (radioUpload.checked) {
+                if (!fileInput.value) {
+                    alert("Please select a file to upload.");
+                    e.preventDefault();
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const allowedExtensions = /(\.pdf|\.doc|\.docx)$/i;
+                if (!allowedExtensions.exec(file.name)) {
+                    alert("Invalid file type. Only PDF and Word documents (.pdf, .doc, .docx) are allowed.");
+                    e.preventDefault();
+                    return;
+                }
+
+                // Limit file size to 5MB
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("File is too large. Maximum size is 5MB.");
+                    e.preventDefault();
+                    return;
+                }
+            }
+        });
+    });
+</script>
+

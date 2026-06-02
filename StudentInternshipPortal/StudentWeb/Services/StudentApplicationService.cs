@@ -76,7 +76,7 @@ public class StudentApplicationService
         return Convert.ToInt32(command.ExecuteScalar());
     }
 
-    public SubmitApplicationResult SubmitApplication(int userId, int jobId)
+    public SubmitApplicationResult SubmitApplication(int userId, int jobId, string? resumeFileName)
     {
         using var connection = _databaseHelper.CreateConnection();
         connection.Open();
@@ -129,14 +129,15 @@ public class StudentApplicationService
         using var insertCommand = connection.CreateCommand();
         insertCommand.CommandText =
             """
-            INSERT INTO Applications (StudentProfileId, JobId, Status, AppliedAt, UpdatedAt)
-            VALUES ($studentProfileId, $jobId, $status, $appliedAt, $updatedAt);
+            INSERT INTO Applications (StudentProfileId, JobId, Status, AppliedAt, UpdatedAt, ResumeFileName)
+            VALUES ($studentProfileId, $jobId, $status, $appliedAt, $updatedAt, $resumeFileName);
             """;
         insertCommand.Parameters.AddWithValue("$studentProfileId", (int)studentProfileId);
         insertCommand.Parameters.AddWithValue("$jobId", jobId);
         insertCommand.Parameters.AddWithValue("$status", (int)ApplicationStatus.Pending);
         insertCommand.Parameters.AddWithValue("$appliedAt", now);
         insertCommand.Parameters.AddWithValue("$updatedAt", now);
+        insertCommand.Parameters.AddWithValue("$resumeFileName", (object?)resumeFileName ?? DBNull.Value);
         insertCommand.ExecuteNonQuery();
 
         return SubmitApplicationResult.Success;

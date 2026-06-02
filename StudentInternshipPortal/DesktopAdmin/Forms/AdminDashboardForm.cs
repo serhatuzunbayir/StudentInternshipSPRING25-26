@@ -35,6 +35,12 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         lblWelcome.Text = $"Logged in as: {adminUsername}";
         ApplyGridTheme(dgvJobs);
         ApplyGridTheme(dgvApplications);
+
+
+
+        // Wire cell double click on application grid
+        dgvApplications.CellDoubleClick += dgvApplications_CellDoubleClick;
+
         _notificationManager.NotificationCreated += NotificationManager_NotificationCreated;
         _auditLogger.AdminActionPerformed += action =>
         {
@@ -64,6 +70,31 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
     {
         foreach (DataGridViewColumn column in grid.Columns)
         {
+            if (column.Name.Equals("StudentId", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.Equals("ResumeFileName", StringComparison.OrdinalIgnoreCase))
+            {
+                column.Visible = false;
+                continue;
+            }
+
+            if (column.Name.Equals("MatchPercentage", StringComparison.OrdinalIgnoreCase))
+            {
+                column.HeaderText = "Match %";
+                column.FillWeight = 60;
+                column.MinimumWidth = 65;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                continue;
+            }
+
+            if (column.Name.Equals("CVSource", StringComparison.OrdinalIgnoreCase))
+            {
+                column.HeaderText = "CV Source";
+                column.FillWeight = 70;
+                column.MinimumWidth = 75;
+                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                continue;
+            }
+
             if (column.Name.Contains("Id", StringComparison.OrdinalIgnoreCase))
             {
                 column.FillWeight = 48;
@@ -344,5 +375,39 @@ public AdminDashboardForm(DatabaseHelper databaseHelper, int adminUserId, string
         {
             dgvApplications.Rows[e.RowIndex].Selected = true;
         }
+    }
+
+
+    private void dgvApplications_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex >= 0)
+        {
+            OpenApplicantDetails();
+        }
+    }
+
+    private void OpenApplicantDetails()
+    {
+        var selectedApplication = GetSelectedApplicationRow();
+        if (selectedApplication is null)
+        {
+            MessageBox.Show("Select an application first.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var profileDetails = _applicationService.GetStudentProfileDetails(selectedApplication.StudentId);
+        if (profileDetails is null)
+        {
+            MessageBox.Show("Could not load student profile details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        using var detailsForm = new ApplicantDetailsForm(
+            profileDetails,
+            selectedApplication.JobTitle,
+            selectedApplication.MatchPercentage,
+            selectedApplication.ResumeFileName);
+        
+        detailsForm.ShowDialog(this);
     }
 }
