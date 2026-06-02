@@ -51,6 +51,163 @@
             @RenderBody()
         </main>
 
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var unreadNotifications = NotificationQueryService.GetNotificationsForUser(userId).Notifications.Where(n => !n.IsRead).ToList();
+            
+            if (unreadNotifications.Count > 0)
+            {
+                <div style="display: none;">
+                    <form id="xsrf-form">
+                        @Html.AntiForgeryToken()
+                    </form>
+                </div>
+                <div id="toast-container" class="toast-container">
+                    @foreach (var notif in unreadNotifications)
+                    {
+                        <div class="toast-card" data-id="@notif.Id">
+                            <div class="toast-header">
+                                <span class="toast-icon">🔔</span>
+                                <strong class="toast-title">@notif.Title</strong>
+                                <span class="toast-time">@notif.CreatedAt</span>
+                                <button class="toast-close" onclick="dismissToast(this, @notif.Id)">&times;</button>
+                            </div>
+                            <div class="toast-body">
+                                @notif.Message
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <style>
+                    .toast-container {
+                        position: fixed;
+                        bottom: 2rem;
+                        right: 2rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.75rem;
+                        z-index: 9999;
+                        max-width: 380px;
+                        width: calc(100% - 4rem);
+                    }
+                    .toast-card {
+                        background: #ffffff;
+                        border: 1px solid rgba(15, 118, 110, 0.2);
+                        border-radius: 12px;
+                        padding: 1rem;
+                        box-shadow: 0 10px 25px rgba(31, 41, 51, 0.12);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.35rem;
+                        animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .toast-card::before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        bottom: 0;
+                        width: 4px;
+                        background: #0f766e;
+                    }
+                    .toast-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        font-size: 0.9rem;
+                        font-weight: 700;
+                        color: #1f2933;
+                    }
+                    .toast-icon {
+                        font-size: 1rem;
+                    }
+                    .toast-title {
+                        flex-grow: 1;
+                    }
+                    .toast-time {
+                        font-size: 0.75rem;
+                        font-weight: normal;
+                        color: #5b6670;
+                        margin-right: 1.5rem;
+                    }
+                    .toast-close {
+                        background: none;
+                        border: none;
+                        font-size: 1.25rem;
+                        cursor: pointer;
+                        color: #5b6670;
+                        position: absolute;
+                        right: 0.75rem;
+                        top: 0.65rem;
+                        line-height: 1;
+                        padding: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .toast-close:hover {
+                        color: #ef4444;
+                    }
+                    .toast-body {
+                        font-size: 0.88rem;
+                        color: #5b6670;
+                        line-height: 1.4;
+                        padding-left: 0.25rem;
+                        text-align: left;
+                    }
+                    @@keyframes toastSlideIn {
+                        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                    @@keyframes toastFadeOut {
+                        from { opacity: 1; transform: translateY(0) scale(1); }
+                        to { opacity: 0; transform: translateY(10px) scale(0.95); }
+                    }
+                </style>
+
+                <script>
+                    function dismissToast(button, id) {
+                        const card = button.closest('.toast-card');
+                        card.style.animation = 'toastFadeOut 0.2s ease both';
+                        
+                        const formData = new FormData();
+                        formData.append('notificationId', id);
+                        
+                        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        if (tokenInput) {
+                            formData.append('__RequestVerificationToken', tokenInput.value);
+                        }
+                        
+                        fetch('/Notifications/MarkAsRead', {
+                            method: 'POST',
+                            body: formData
+                        }).then(() => {
+                            setTimeout(() => {
+                                card.remove();
+                                const container = document.getElementById('toast-container');
+                                if (container && container.children.length === 0) {
+                                    container.remove();
+                                }
+                                const badge = document.querySelector('.nav-notification-badge');
+                                if (badge) {
+                                    let count = parseInt(badge.innerText) - 1;
+                                    if (count <= 0) {
+                                        badge.remove();
+                                    } else {
+                                        badge.innerText = count;
+                                    }
+                                }
+                            }, 200);
+                        });
+                    }
+                </script>
+            }
+        }
+
         @await RenderSectionAsync("Scripts", required: false)
     </body>
 </html>
