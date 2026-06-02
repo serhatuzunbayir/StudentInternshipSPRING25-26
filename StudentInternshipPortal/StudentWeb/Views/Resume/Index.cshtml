@@ -1,9 +1,23 @@
 @model StudentWeb.Models.ResumeViewModel
+
 @{
     ViewData["Title"] = "Resume Builder";
 }
 
 <section class="placeholder-card">
     <h1>Resume Builder</h1>
-    <p>Placeholder page for generating a resume from shared profile data.</p>
+
+    @if (!Model.HasProfile)
+    {
+        <p>No profile found. Please create your profile first.</p>
+        <a href="/Profile">Go to Profile</a>
+    }
+    else
+    {
+        <h2>@Model.FullName</h2>
+
+        <pre>@Model.ResumeText</pre>
+
+        <a href="/Resume/Download">Download Resume</a>
+    }
 </section>
