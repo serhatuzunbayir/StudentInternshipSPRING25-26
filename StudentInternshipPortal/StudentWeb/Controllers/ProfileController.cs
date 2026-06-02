@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models;
@@ -56,11 +56,11 @@ public class ProfileController : Controller
         {
             UserId = userId,
             FullName = model.FullName,
-            Skills = model.Skills,
-            Education = model.Education,
-            Experience = model.Experience,
-            Phone = model.Phone,
-            AboutMe = model.AboutMe
+            Skills = model.Skills ?? string.Empty,
+            Education = model.Education ?? string.Empty,
+            Experience = model.Experience ?? string.Empty,
+            Phone = model.Phone ?? string.Empty,
+            AboutMe = model.AboutMe ?? string.Empty
         });
 
         TempData["Success"] = "Profile updated successfully!";
